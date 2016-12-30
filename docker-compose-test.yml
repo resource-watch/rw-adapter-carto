@@ -1,0 +1,10 @@
+test:
+  extends:
+    file: base.yml
+    service: base
+  ports:
+    - "3005"
+  container_name: rw-adapter-carto-test
+  environment:
+    NODE_ENV: test
+  command: test
