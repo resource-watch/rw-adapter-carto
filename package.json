@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "CT_URL=http://mymachine:9000 LOCAL_URL=http://mymachine:3005 NODE_PATH=app/src PORT=3005 NODE_PATH=app/src node --harmony ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js",
-    "run": "PORT=3005 NODE_PATH=app/src node app/index.js | bunyan",
-    "cron": "PORT=3005 NODE_PATH=app/src node app/index-crons.js | bunyan",
+    "dev": "CT_URL=http://mymachine:9000 LOCAL_URL=http://mymachine:3005 NODE_PATH=app/src PORT=3005 node --harmony ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js",
+    "start": "NODE_PATH=app/src node --harmony app/index.js",
     "test": "NODE_PATH=app/src node --harmony ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js e2eTest",
     "test-watch": "NODE_PATH=app/src CT_URL=http://tower.test node --harmony ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js e2eTest-watch"
   },
