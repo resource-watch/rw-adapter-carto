@@ -26,7 +26,7 @@ const fields = [{
     }
 }];
 
-describe('test', () => {
+describe('E2E test', () => {
     before(() => {
         const app = require('app');
         BASE_URL = `http://localhost:${app.address().port}`;

@@ -7,4 +7,5 @@ test:
   container_name: rw-adapter-carto-test
   environment:
     NODE_ENV: test
+    CT_URL: http://mymachine:9000
   command: test
