@@ -49,7 +49,8 @@ class QueryService {
         }
         if (this.ast.limit && this.ast.limit.nb > this.pagination) {
             this.ast.limit = {
-                nb: this.pagination
+                nb: this.pagination,
+                from: null
             };
         }
         logger.debug('limit ', this.ast.limit, ' count', this.count);
@@ -91,6 +92,12 @@ class QueryService {
             }
             logger.debug(`Obtaining page ${i}`);
             const offset = i * this.pagination;
+            if (i + 1 === pages) {
+                this.ast.limit = {
+                    nb: this.count - (this.pagination * i),
+                    from: null
+                };
+            }
             logger.debug('Query', `${simpleSqlParser.ast2sql({ status: true, value: this.ast })} OFFSET ${offset}`);
             const request = CartoService.executeQuery(this.dataset.connectorUrl, `${simpleSqlParser.ast2sql({ status: true, value: this.ast })} OFFSET ${offset}`);
             await this.writeRequest(request);
