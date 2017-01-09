@@ -86,6 +86,35 @@ class CartoRouter {
         ctx.body = FieldSerializer.serialize(fields, ctx.request.body.dataset.tableName);
     }
 
+    static async registerDataset(ctx) {
+        logger.info('Registering dataset with data', ctx.request.body);
+        try {
+            await CartoService.getFields(ctx.request.body.connector.connector_url, ctx.request.body.connector.table_name);
+            await ctRegisterMicroservice.requestToMicroservice({
+                method: 'PATCH',
+                uri: `/dataset/${ctx.request.body.connector.id}`,
+                body: {
+                    dataset: {
+                        status: 1
+                    }
+                },
+                json: true
+            });
+        } catch (e) {
+            await ctRegisterMicroservice.requestToMicroservice({
+                method: 'PATCH',
+                uri: `/dataset/${ctx.request.body.connector.id}`,
+                body: {
+                    dataset: {
+                        status: 2
+                    }
+                },
+                json: true
+            });
+        }
+        ctx.body = {};
+    }
+
 }
 
 const deserializer = (obj) => (new Promise((resolve, reject) => {
@@ -99,6 +128,17 @@ const deserializer = (obj) => (new Promise((resolve, reject) => {
         resolve(data);
     });
 }));
+
+const sanitizeUrl = async (ctx, next) => {
+    if (ctx.request.body.dataset && ctx.request.body.dataset.connectorUrl && /u/.test(ctx.request.body.dataset.connectorUrl)) {
+        const user = ctx.request.body.dataset.connectorUrl.split(/\/u|\/table/)[1].replace('/', '');
+        ctx.request.body.dataset.connectorUrl = `https://${user}.carto.com/api/v2/sql`;
+    } else if (ctx.request.body.connector && ctx.request.body.connector.connector_url && /u/.test(ctx.request.body.connector.connector_url)) {
+        const user = ctx.request.body.connector.connector_url.split(/\/u|\/table/)[1].replace('/', '');
+        ctx.request.body.connector.connector_url = `https://${user}.carto.com/api/v2/sql`;
+    }
+    await next();
+};
 
 const deserializeDataset = async(ctx, next) => {
     logger.debug('Body', ctx.request.body);
@@ -172,8 +212,9 @@ const toSQLMiddleware = async function (ctx, next) {
     }
 };
 
-router.post('/query/:dataset', deserializeDataset, toSQLMiddleware, CartoRouter.query);
-router.post('/download/:dataset', deserializeDataset, toSQLMiddleware, CartoRouter.download);
-router.post('/fields/:dataset', deserializeDataset, CartoRouter.fields);
+router.post('/query/:dataset', deserializeDataset, toSQLMiddleware, sanitizeUrl, CartoRouter.query);
+router.post('/download/:dataset', deserializeDataset, toSQLMiddleware, sanitizeUrl, CartoRouter.download);
+router.post('/fields/:dataset', deserializeDataset, sanitizeUrl, CartoRouter.fields);
+router.post('/rest-datasets/cartodb', sanitizeUrl, CartoRouter.registerDataset);
 
 module.exports = router;

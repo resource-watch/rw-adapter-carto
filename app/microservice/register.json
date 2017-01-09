@@ -116,11 +116,11 @@
 			}
 		}]
 	}, {
-		"path": "/hi",
-		"method": "GET",
+		"path": "/rest-datasets/cartodb",
+		"method": "POST",
 		"redirect": {
-			"method": "GET",
-			"path": "/api/v1/doc/hi"
+			"method": "POST",
+			"path": "/api/v1/carto/rest-datasets/cartodb"
 		}
 	}]
 }
