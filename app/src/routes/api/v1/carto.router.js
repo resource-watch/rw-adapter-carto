@@ -130,10 +130,10 @@ const deserializer = (obj) => (new Promise((resolve, reject) => {
 }));
 
 const sanitizeUrl = async (ctx, next) => {
-    if (ctx.request.body.dataset && ctx.request.body.dataset.connectorUrl && /u/.test(ctx.request.body.dataset.connectorUrl)) {
+    if (ctx.request.body.dataset && ctx.request.body.dataset.connectorUrl && /\/u/.test(ctx.request.body.dataset.connectorUrl)) {
         const user = ctx.request.body.dataset.connectorUrl.split(/\/u|\/table/)[1].replace('/', '');
         ctx.request.body.dataset.connectorUrl = `https://${user}.carto.com/api/v2/sql`;
-    } else if (ctx.request.body.connector && ctx.request.body.connector.connector_url && /u/.test(ctx.request.body.connector.connector_url)) {
+    } else if (ctx.request.body.connector && ctx.request.body.connector.connector_url && /\/u/.test(ctx.request.body.connector.connector_url)) {
         const user = ctx.request.body.connector.connector_url.split(/\/u|\/table/)[1].replace('/', '');
         ctx.request.body.connector.connector_url = `https://${user}.carto.com/api/v2/sql`;
     }
