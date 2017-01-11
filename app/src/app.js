@@ -57,6 +57,7 @@ const instance = app.listen(process.env.PORT, () => {
         name: config.get('service.name'),
         ctUrl: process.env.CT_URL,
         url: process.env.LOCAL_URL,
+        token: process.env.CT_TOKEN,
         active: true,
     }).then(() => {}, (err) => {
         logger.error(err);

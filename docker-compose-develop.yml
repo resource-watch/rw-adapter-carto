@@ -7,6 +7,7 @@ develop:
   environment:
     CT_URL: http://mymachine:9000 
     LOCAL_URL: http://mymachine:3005
+    CT_TOKEN: null
   command: develop
   volumes:
     - ./app:/opt/rw-adapter-carto/app
