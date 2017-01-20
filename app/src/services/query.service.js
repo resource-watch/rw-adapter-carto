@@ -68,13 +68,15 @@ class QueryService {
     }
 
     async writeRequest(request) {
+        let count = 0;
         return new Promise((resolve, reject) => {
             request.pipe(JSONStream.parse('rows.*'))
                 .on('data', (data) => {
+                    count++;
                     this.passthrough.write(this.convertObject(data));
                     this.first = false;
                 })
-                .on('end', () => resolve())
+                .on('end', () => resolve(count))
                 .on('error', () => reject('Error in stream'));
         });
     }
@@ -100,7 +102,11 @@ class QueryService {
             }
             logger.debug('Query', `${simpleSqlParser.ast2sql({ status: true, value: this.ast })} OFFSET ${offset}`);
             const request = CartoService.executeQuery(this.dataset.connectorUrl, `${simpleSqlParser.ast2sql({ status: true, value: this.ast })} OFFSET ${offset}`);
-            await this.writeRequest(request);
+            const count = await this.writeRequest(request);
+            // if not return the same number of rows that pagination is that the query finished
+            if (count < this.pagination) {
+                break;
+            }
         }
 
         if (this.timeout) {
