@@ -42,7 +42,7 @@ class CartoRouter {
             const queryService = await new QueryService(ctx.query.sql, ctx.request.body.dataset, ctx.body, cloneUrl, false, null);
             await queryService.init();
             queryService.execute();
-            logger.debug('Finished!!!!!!!!!!!!!!!!!!!!!!!');
+            logger.debug('Finished query');
         } catch (err) {
             ctx.body = ErrorSerializer.serializeError(err.statusCode || 500, err.error && err.error.error ? err.error.error[0] : err.message);
             ctx.status = 500;
@@ -73,7 +73,7 @@ class CartoRouter {
             ctx.set('Content-type', mimetype);
 
             queryService.execute();
-            logger.debug('Finished!!!!!!!!!!!!!!!!!!!!!!!');
+            logger.debug('Finished query');
         } catch (err) {
             ctx.body = ErrorSerializer.serializeError(err.statusCode || 500, err.error && err.error.error ? err.error.error[0] : err.message);
             ctx.status = 500;
