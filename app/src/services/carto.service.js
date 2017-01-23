@@ -25,7 +25,7 @@ class CartoService {
     static async getCount(urlDataset, tableName, where) {
         logger.debug(`Obtaining count of ${urlDataset} and table ${tableName}`);
         const parsedUrl = url.parse(urlDataset);
-        logger.debug('Doing request to ', `https://${parsedUrl.host}/api/v2/sql?q=select count(*) from ${tableName} ${where ? where.expression : ''}`);
+        logger.debug('Doing request to ', `https://${parsedUrl.host}/api/v2/sql?q=select count(*) from ${tableName} ${where ? `where ${where.expression}` : ''}`);
         try {
             const result = await requestPromise({
                 method: 'POST',
