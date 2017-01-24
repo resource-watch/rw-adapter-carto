@@ -32,7 +32,7 @@ class CartoService {
                 uri: `https://${parsedUrl.host}/api/v2/sql`,
                 json: true,
                 body: {
-                    q: `select count(*) from ${tableName} ${where || ''}`
+                    q: unescape(`select count(*) from ${tableName} ${where || ''}`)
                 }
             });
             return result.rows[0].count;
@@ -51,7 +51,7 @@ class CartoService {
             method: 'POST',
             json: true,
             body: {
-                q: query
+                q: unescape(query)
             }
         });
     }
