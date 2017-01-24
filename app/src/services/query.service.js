@@ -47,7 +47,7 @@ class QueryService {
         if (this.ast.limit && this.ast.limit.nb && this.count > this.ast.limit.nb) {
             this.count = this.ast.limit.nb;
         }
-        if (this.ast.limit && this.ast.limit.nb > this.pagination) {
+        if ((this.ast.limit && this.ast.limit.nb > this.pagination) || !this.ast.limit) {
             this.ast.limit = {
                 nb: this.pagination,
                 from: null
