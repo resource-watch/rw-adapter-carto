@@ -87,7 +87,10 @@ class QueryService {
         this.first = true;
         if (!this.download) {
             this.passthrough.write(`{"data":[`);
+        } else if (this.download && this.downloadType !== 'csv'){
+            this.passthrough.write(`[`);
         }
+        
         for (let i = 0; i < pages; i++) {
             if (this.timeout) {
                 break;
