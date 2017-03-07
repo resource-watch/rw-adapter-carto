@@ -123,7 +123,7 @@ class QueryService {
         if (!this.download) {
             this.passthrough.write(`], "meta": ${JSON.stringify(meta)} }`);
         } else if (this.downloadType !== 'csv') {
-            this.passthrough.write(`]}`);
+            this.passthrough.write(`]`);
         }
         logger.debug('Finished');
         this.passthrough.end();
