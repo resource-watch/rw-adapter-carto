@@ -87,7 +87,10 @@ class QueryService {
         this.first = true;
         if (!this.download) {
             this.passthrough.write(`{"data":[`);
+        } else if (this.download && this.downloadType !== 'csv'){
+            this.passthrough.write(`[`);
         }
+        
         for (let i = 0; i < pages; i++) {
             if (this.timeout) {
                 break;
@@ -120,7 +123,7 @@ class QueryService {
         if (!this.download) {
             this.passthrough.write(`], "meta": ${JSON.stringify(meta)} }`);
         } else if (this.downloadType !== 'csv') {
-            this.passthrough.write(`]}`);
+            this.passthrough.write(`]`);
         }
         logger.debug('Finished');
         this.passthrough.end();
