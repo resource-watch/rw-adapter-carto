@@ -52,7 +52,7 @@ class CartoRouter {
     static async download(ctx) {
         try {
             ctx.body = passThrough();
-            const format = ctx.query.format ? ctx.query.format : 'csv';            
+            const format = ctx.query.format ? ctx.query.format : 'csv';
             let mimetype;
             switch (format) {
 
@@ -106,7 +106,8 @@ class CartoRouter {
                 uri: `/dataset/${ctx.request.body.connector.id}`,
                 body: {
                     dataset: {
-                        status: 2
+                        status: 2,
+                        errorMessage: `${e.name} - ${e.message}`
                     }
                 },
                 json: true
@@ -189,7 +190,7 @@ const toSQLMiddleware = async function (ctx, next) {
 
     try {
         const result = await ctRegisterMicroservice.requestToMicroservice(options);
-        
+
         if (result.statusCode === 204 || result.statusCode === 200) {
             ctx.query.sql = result.body.data.attributes.query;
             await next();
