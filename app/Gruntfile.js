@@ -12,7 +12,6 @@ module.exports = function (grunt) {
             dev: {
                 options: {
                     script: 'app/index.js',
-                    opts: ['--harmony'],
                     node_env: 'dev',
                     port: process.env.PORT,
                     output: 'started'
