@@ -89,7 +89,7 @@ class CartoRouter {
     static async registerDataset(ctx) {
         logger.info('Registering dataset with data', ctx.request.body);
         try {
-            await CartoService.getFields(ctx.request.body.connector.connector_url, ctx.request.body.connector.table_name);
+            await CartoService.getFields(ctx.request.body.connector.connectorUrl, ctx.request.body.connector.tableName);
             await ctRegisterMicroservice.requestToMicroservice({
                 method: 'PATCH',
                 uri: `/dataset/${ctx.request.body.connector.id}`,
