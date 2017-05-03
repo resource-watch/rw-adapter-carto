@@ -173,19 +173,27 @@ const toSQLMiddleware = async function (ctx, next) {
         if (params.geostore) {
             options.uri += `&geostore=${params.geostore}`;
         }
+        if (params.geojson){
+            options.body = {
+                geojson: params.geojson
+            };
+            options.method = 'POST';
+        }
     } else {
         logger.debug('Obtaining sql from featureService');
         const fs = Object.assign({}, ctx.request.body);
         delete fs.dataset;
         const query = serializeObjToQuery(ctx.request.query);
-        const body = serializeObjToQuery(fs);
-        const resultQuery = Object.assign({}, query, body);
+        const body = fs;
+        const resultQuery = Object.assign({}, query);
 
         if (resultQuery) {
             options.uri = `/convert/fs2SQL${resultQuery}&tableName=${ctx.request.body.dataset.tableName}`;
         } else {
             options.uri = `/convert/fs2SQL?tableName=${ctx.request.body.dataset.tableName}`;
         }
+        options.body = body;
+        options.method = 'POST';
     }
 
     try {
