@@ -67,10 +67,16 @@ class QueryService {
 
     }
 
-    async writeRequest(request) {
+    async writeRequest(request, format) {
         let count = 0;
         return new Promise((resolve, reject) => {
-            request.pipe(JSONStream.parse('rows.*'))
+            let parser = null;
+            if (format === 'geojson') {
+                parser = JSONStream.parse('*');
+            } else {
+                parser = JSONStream.parse('rows.*')
+            }
+            request.pipe(parser)
                 .on('data', (data) => {
                     count++;
                     this.passthrough.write(this.convertObject(data));
@@ -104,8 +110,9 @@ class QueryService {
                 };
             }
             logger.debug('Query', `${simpleSqlParser.ast2sql({ status: true, value: this.ast })} OFFSET ${offset}`);
-            const request = CartoService.executeQuery(this.dataset.connectorUrl, `${simpleSqlParser.ast2sql({ status: true, value: this.ast })} OFFSET ${offset}`);
-            const count = await this.writeRequest(request);
+            const request = CartoService.executeQuery(this.dataset.connectorUrl, `${simpleSqlParser.ast2sql({ status: true, value: this.ast })} OFFSET ${offset}`, this.downloadType);
+            
+            const count = await this.writeRequest(request, this.downloadType);
             // if not return the same number of rows that pagination is that the query finished
             if (count < this.pagination) {
                 break;
