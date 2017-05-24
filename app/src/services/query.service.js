@@ -72,12 +72,13 @@ class QueryService {
         return new Promise((resolve, reject) => {
             let parser = null;
             if (format === 'geojson') {
-                parser = JSONStream.parse('*');
+                parser = JSONStream.parse('features.*');
             } else {
-                parser = JSONStream.parse('rows.*')
+                parser = JSONStream.parse('rows.*');
             }
             request.pipe(parser)
                 .on('data', (data) => {
+                    logger.debug('data', data);
                     count++;
                     this.passthrough.write(this.convertObject(data));
                     this.first = false;
@@ -93,8 +94,15 @@ class QueryService {
         this.first = true;
         if (!this.download) {
             this.passthrough.write(`{"data":[`);
-        } else if (this.download && this.downloadType !== 'csv'){
-            this.passthrough.write(`[`);
+            if (this.downloadType === 'geojson') {
+                this.passthrough.write(`{"type": "FeatureCollection", "features": [`);
+            }
+        } else if (this.download) {
+            if (this.downloadType === 'geojson') {
+                this.passthrough.write(`{"data":[{"type": "FeatureCollection", "features": [`);
+            } else if (this.downloadType !== 'csv') {
+                this.passthrough.write(`[`);
+            }
         }
         
         for (let i = 0; i < pages; i++) {
@@ -127,10 +135,19 @@ class QueryService {
         const meta = {
             cloneUrl: this.cloneUrl
         };
+
         if (!this.download) {
+            
+            if (this.downloadType === 'geojson') {
+                this.passthrough.write(`]}`);
+            }
             this.passthrough.write(`], "meta": ${JSON.stringify(meta)} }`);
-        } else if (this.downloadType !== 'csv') {
-            this.passthrough.write(`]`);
+        } else if (this.download) {
+            if (this.downloadType === 'geojson') {
+                this.passthrough.write(`]}]}`);
+            } else if (this.downloadType !== 'csv') {
+                this.passthrough.write(`]`);
+            }
         }
         logger.debug('Finished');
         this.passthrough.end();
