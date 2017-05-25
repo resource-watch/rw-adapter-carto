@@ -42,18 +42,22 @@ class CartoService {
         }
     }
 
-    static executeQuery(urlDataset, query) {
+    static executeQuery(urlDataset, query, format) {
         logger.debug(`Doing query ${query} to ${urlDataset}`);
         const parsedUrl = url.parse(urlDataset);
         logger.debug('Doing request to ', `https://${parsedUrl.host}/api/v2/sql?q=...`);
-        return request({
+        const configRequest = {
             uri: `https://${parsedUrl.host}/api/v2/sql`,
             method: 'POST',
             json: true,
             body: {
                 q: unescape(query)
             }
-        });
+        };
+        if (format && format === 'geojson') {
+            configRequest.body.format = 'geojson';
+        }
+        return request(configRequest);
     }
 
 }
