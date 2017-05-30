@@ -1,7 +1,7 @@
 {
     "logger": {
         "name": "rw-adapter-carto",
-        "level": "warn",
+        "level": "debug",
         "toFile": false,
         "dirLogFile": null
     },
