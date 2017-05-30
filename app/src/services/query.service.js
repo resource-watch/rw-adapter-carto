@@ -67,11 +67,18 @@ class QueryService {
 
     }
 
-    async writeRequest(request) {
+    async writeRequest(request, format) {
         let count = 0;
         return new Promise((resolve, reject) => {
-            request.pipe(JSONStream.parse('rows.*'))
+            let parser = null;
+            if (format === 'geojson') {
+                parser = JSONStream.parse('features.*');
+            } else {
+                parser = JSONStream.parse('rows.*');
+            }
+            request.pipe(parser)
                 .on('data', (data) => {
+                    logger.debug('data', data);
                     count++;
                     this.passthrough.write(this.convertObject(data));
                     this.first = false;
@@ -87,8 +94,15 @@ class QueryService {
         this.first = true;
         if (!this.download) {
             this.passthrough.write(`{"data":[`);
-        } else if (this.download && this.downloadType !== 'csv'){
-            this.passthrough.write(`[`);
+            if (this.downloadType === 'geojson') {
+                this.passthrough.write(`{"type": "FeatureCollection", "features": [`);
+            }
+        } else if (this.download) {
+            if (this.downloadType === 'geojson') {
+                this.passthrough.write(`{"data":[{"type": "FeatureCollection", "features": [`);
+            } else if (this.downloadType !== 'csv') {
+                this.passthrough.write(`[`);
+            }
         }
         
         for (let i = 0; i < pages; i++) {
@@ -104,8 +118,9 @@ class QueryService {
                 };
             }
             logger.debug('Query', `${simpleSqlParser.ast2sql({ status: true, value: this.ast })} OFFSET ${offset}`);
-            const request = CartoService.executeQuery(this.dataset.connectorUrl, `${simpleSqlParser.ast2sql({ status: true, value: this.ast })} OFFSET ${offset}`);
-            const count = await this.writeRequest(request);
+            const request = CartoService.executeQuery(this.dataset.connectorUrl, `${simpleSqlParser.ast2sql({ status: true, value: this.ast })} OFFSET ${offset}`, this.downloadType);
+            
+            const count = await this.writeRequest(request, this.downloadType);
             // if not return the same number of rows that pagination is that the query finished
             if (count < this.pagination) {
                 break;
@@ -120,10 +135,19 @@ class QueryService {
         const meta = {
             cloneUrl: this.cloneUrl
         };
+
         if (!this.download) {
+            
+            if (this.downloadType === 'geojson') {
+                this.passthrough.write(`]}`);
+            }
             this.passthrough.write(`], "meta": ${JSON.stringify(meta)} }`);
-        } else if (this.downloadType !== 'csv') {
-            this.passthrough.write(`]`);
+        } else if (this.download) {
+            if (this.downloadType === 'geojson') {
+                this.passthrough.write(`]}]}`);
+            } else if (this.downloadType !== 'csv') {
+                this.passthrough.write(`]`);
+            }
         }
         logger.debug('Finished');
         this.passthrough.end();

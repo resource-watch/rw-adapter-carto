@@ -36,10 +36,11 @@ class CartoRouter {
 
     static async query(ctx) {
         ctx.set('Content-type', 'application/json');
+        const format = ctx.query.format;
         const cloneUrl = CartoRouter.getCloneUrl(ctx.request.url, ctx.params.dataset);
         try {
             ctx.body = passThrough();
-            const queryService = await new QueryService(ctx.query.sql, ctx.request.body.dataset, ctx.body, cloneUrl, false, null);
+            const queryService = await new QueryService(ctx.query.sql, ctx.request.body.dataset, ctx.body, cloneUrl, false, format);
             await queryService.init();
             queryService.execute();
             logger.debug('Finished query');
@@ -173,7 +174,7 @@ const toSQLMiddleware = async function (ctx, next) {
         if (params.geostore) {
             options.uri += `&geostore=${params.geostore}`;
         }
-        if (params.geojson){
+        if (params.geojson) {
             options.body = {
                 geojson: params.geojson
             };
