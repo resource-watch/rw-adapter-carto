@@ -1,4 +1,4 @@
-# Resource Watch Adapter CSV
+# Resource Watch Carto Adapter
 
 
 This repository is the microservice that implements the carto adapter
