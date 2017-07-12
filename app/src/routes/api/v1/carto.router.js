@@ -45,6 +45,7 @@ class CartoRouter {
             queryService.execute();
             logger.debug('Finished query');
         } catch (err) {
+            logger.error(err);
             ctx.body = ErrorSerializer.serializeError(err.statusCode || 500, err.error && err.error.error ? err.error.error[0] : err.message);
             ctx.status = 500;
         }
