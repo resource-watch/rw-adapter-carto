@@ -40,7 +40,7 @@ class CartoRouter {
         const cloneUrl = CartoRouter.getCloneUrl(ctx.request.url, ctx.params.dataset);
         try {
             ctx.body = passThrough();
-            const queryService = await new QueryService(ctx.query.sql, ctx.request.body.dataset, ctx.body, cloneUrl, false, format);
+            const queryService = await new QueryService(ctx.query.sql, ctx.request.body.dataset, ctx.body, cloneUrl, false, format, ctx.state.jsonSql);
             await queryService.init();
             queryService.execute();
             logger.debug('Finished query');
@@ -69,7 +69,7 @@ class CartoRouter {
             }
 
             const cloneUrl = CartoRouter.getCloneUrl(ctx.request.url, ctx.params.dataset);
-            const queryService = await new QueryService(ctx.query.sql, ctx.request.body.dataset, ctx.body, cloneUrl, true, format);
+            const queryService = await new QueryService(ctx.query.sql, ctx.request.body.dataset, ctx.body, cloneUrl, true, format, ctx.state.jsonSql);
             await queryService.init();
             ctx.set('Content-disposition', `attachment; filename=${ctx.request.body.dataset.id}.${format}`);
             ctx.set('Content-type', mimetype);
@@ -203,6 +203,7 @@ const toSQLMiddleware = async function (ctx, next) {
 
         if (result.statusCode === 204 || result.statusCode === 200) {
             ctx.query.sql = result.body.data.attributes.query;
+            ctx.state.jsonSql = result.body.data.attributes.jsonSql;
             await next();
         } else {
             if (result.statusCode === 400) {

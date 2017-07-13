@@ -1,23 +1,19 @@
 const logger = require('logger');
-const simpleSqlParser = require('simple-sql-parser');
 const CartoService = require('services/carto.service');
 const JSONStream = require('JSONStream');
 const json2csv = require('json2csv');
+const Json2sql = require('sql2json').json2sql;
 
 class QueryService {
 
-    constructor(sql, dataset, passthrough, cloneUrl, download, downloadType) {
+    constructor(sql, dataset, passthrough, cloneUrl, download, downloadType, jsonSql) {
         this.sql = sql;
         this.dataset = dataset;
         this.passthrough = passthrough;
         this.cloneUrl = cloneUrl;
         this.download = download;
         this.downloadType = downloadType;
-        const ast = QueryService.obtainASTFromSQL(this.sql);
-        if (ast.error) {
-            throw new Error('Query not valid');
-        }
-        this.ast = ast.ast;
+        this.jsonSql = jsonSql;
         this.pagination = 10;
         this.timeout = false;
         this.timeoutFunc = setTimeout(() => { this.timeout = true; }, 60000);
@@ -27,46 +23,16 @@ class QueryService {
         await this.getCount();
     }
 
-    static obtainASTFromSQL(sql) {
-        logger.debug('QL', sql);
-        const ast = simpleSqlParser.sql2ast(sql);
-        logger.info('ast', ast);
-        if (!ast || !ast.SELECT) {
-            return {
-                error: true,
-                ast: null
-            };
-        }
-
-        const keys = Object.keys(ast);
-        for (let i = 0, length = keys.length; i < length; i++) {
-            if (Object.keys(ast[keys[i]]).length === 0 || ast[keys[i]].length === 0) {
-                delete ast[keys[i]];
-                continue;
-            }
-        }
-
-        logger.debug('astaaaaa', ast);
-        
-        return {
-            error: false,
-            ast
-        };
-    }
-
     async getCount() {
-        logger.debug('Obtaining count', this.ast);
-        this.count = await CartoService.getCount(this.dataset.connectorUrl, this.ast.FROM[0].table, this.ast.WHERE);
-        if (this.ast.LIMIT && this.ast.LIMIT.nb && this.count > this.ast.LIMIT.nb) {
-            this.count = this.ast.LIMIT.nb;
+        logger.debug('Obtaining count', this.jsonSql);
+        this.count = await CartoService.getCount(this.dataset.connectorUrl, this.jsonSql.from, this.jsonSql.where);
+        if (this.jsonSql.limit && this.count > this.jsonSql.limit) {
+            this.count = this.jsonSql.limit;
         }
-        if ((this.ast.LIMIT && this.ast.LIMIT.nb > this.pagination) || !this.ast.LIMIT) {
-            this.ast.LIMIT = {
-                nb: this.pagination,
-                from: null
-            };
+        if ((this.jsonSql.limit && this.jsonSql.limit > this.pagination) || !this.jsonSql.limit) {
+            this.jsonSql.limit = this.pagination;
         }
-        logger.debug('LIMIT ', this.ast.LIMIT, ' count', this.count);
+        logger.debug('LIMIT ', this.jsonSql.limit, ' count', this.count);
     }
 
     convertObject(data) {
@@ -125,13 +91,10 @@ class QueryService {
             logger.debug(`Obtaining page ${i}`);
             const offset = i * this.pagination;
             if (i + 1 === pages) {
-                this.ast.LIMIT = {
-                    nb: this.count - (this.pagination * i),
-                    from: null
-                };
+                this.jsonSql.limit = this.count - (this.pagination * i);
             }
-            logger.debug('Query', `${simpleSqlParser.ast2sql(this.ast)} OFFSET ${offset}`);
-            const request = CartoService.executeQuery(this.dataset.connectorUrl, `${simpleSqlParser.ast2sql(this.ast )} OFFSET ${offset}`, this.downloadType);
+            logger.debug('Query', `${Json2sql.toSQL(this.jsonSql)} OFFSET ${offset}`);
+            const request = CartoService.executeQuery(this.dataset.connectorUrl, `${Json2sql.toSQL(this.jsonSql)} OFFSET ${offset}`, this.downloadType);
             
             const count = await this.writeRequest(request, this.downloadType);
             // if not return the same number of rows that pagination is that the query finished
