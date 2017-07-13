@@ -2,6 +2,7 @@ const logger = require('logger');
 const url = require('url');
 const request = require('request');
 const requestPromise = require('request-promise');
+const simpleSqlParser = require('simple-sql-parser');
 
 class CartoService {
 
@@ -24,15 +25,20 @@ class CartoService {
 
     static async getCount(urlDataset, tableName, where) {
         logger.debug(`Obtaining count of ${urlDataset} and table ${tableName}`);
+        const astTemp = simpleSqlParser.sql2ast(`select count(*) from ${tableName}`);
+        if (where) {
+            astTemp.WHERE = where;
+        }
+        const sql = simpleSqlParser.ast2sql(astTemp);
         const parsedUrl = url.parse(urlDataset);
-        logger.debug('Doing request to ', unescape(`https://${parsedUrl.host}/api/v2/sql?q=select count(*) from ${tableName} ${where ? `where ${where.expression}` : ''}`));
+        logger.debug('Doing request to ', unescape(`https://${parsedUrl.host}/api/v2/sql?q=${sql}`));
         try {
             const result = await requestPromise({
                 method: 'POST',
                 uri: `https://${parsedUrl.host}/api/v2/sql`,
                 json: true,
                 body: {
-                    q: unescape(`select count(*) from ${tableName} ${where ? `where ${where.expression}` : ''}`)
+                    q: unescape(sql)
                 }
             });
             return result.rows[0].count;
@@ -45,7 +51,7 @@ class CartoService {
     static executeQuery(urlDataset, query, format) {
         logger.debug(`Doing query ${query} to ${urlDataset}`);
         const parsedUrl = url.parse(urlDataset);
-        logger.debug('Doing request to ', `https://${parsedUrl.host}/api/v2/sql?q=...`);
+        logger.debug('Doing request to ', `https://${parsedUrl.host}/api/v2/sql?q=${query}`);
         const configRequest = {
             uri: `https://${parsedUrl.host}/api/v2/sql`,
             method: 'POST',
