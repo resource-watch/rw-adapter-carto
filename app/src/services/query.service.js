@@ -28,32 +28,45 @@ class QueryService {
     }
 
     static obtainASTFromSQL(sql) {
+        logger.debug('QL', sql);
         const ast = simpleSqlParser.sql2ast(sql);
-        if (!ast.status) {
+        logger.info('ast', ast);
+        if (!ast || !ast.SELECT) {
             return {
                 error: true,
                 ast: null
             };
         }
+
+        const keys = Object.keys(ast);
+        for (let i = 0, length = keys.length; i < length; i++) {
+            if (Object.keys(ast[keys[i]]).length === 0 || ast[keys[i]].length === 0) {
+                delete ast[keys[i]];
+                continue;
+            }
+        }
+
+        logger.debug('astaaaaa', ast);
+        
         return {
             error: false,
-            ast: ast.value
+            ast
         };
     }
 
     async getCount() {
         logger.debug('Obtaining count', this.ast);
-        this.count = await CartoService.getCount(this.dataset.connectorUrl, this.ast.from[0].expression, this.ast.where);
-        if (this.ast.limit && this.ast.limit.nb && this.count > this.ast.limit.nb) {
-            this.count = this.ast.limit.nb;
+        this.count = await CartoService.getCount(this.dataset.connectorUrl, this.ast.FROM[0].table, this.ast.WHERE);
+        if (this.ast.LIMIT && this.ast.LIMIT.nb && this.count > this.ast.LIMIT.nb) {
+            this.count = this.ast.LIMIT.nb;
         }
-        if ((this.ast.limit && this.ast.limit.nb > this.pagination) || !this.ast.limit) {
-            this.ast.limit = {
+        if ((this.ast.LIMIT && this.ast.LIMIT.nb > this.pagination) || !this.ast.LIMIT) {
+            this.ast.LIMIT = {
                 nb: this.pagination,
                 from: null
             };
         }
-        logger.debug('limit ', this.ast.limit, ' count', this.count);
+        logger.debug('LIMIT ', this.ast.LIMIT, ' count', this.count);
     }
 
     convertObject(data) {
@@ -112,13 +125,13 @@ class QueryService {
             logger.debug(`Obtaining page ${i}`);
             const offset = i * this.pagination;
             if (i + 1 === pages) {
-                this.ast.limit = {
+                this.ast.LIMIT = {
                     nb: this.count - (this.pagination * i),
                     from: null
                 };
             }
-            logger.debug('Query', `${simpleSqlParser.ast2sql({ status: true, value: this.ast })} OFFSET ${offset}`);
-            const request = CartoService.executeQuery(this.dataset.connectorUrl, `${simpleSqlParser.ast2sql({ status: true, value: this.ast })} OFFSET ${offset}`, this.downloadType);
+            logger.debug('Query', `${simpleSqlParser.ast2sql(this.ast)} OFFSET ${offset}`);
+            const request = CartoService.executeQuery(this.dataset.connectorUrl, `${simpleSqlParser.ast2sql(this.ast )} OFFSET ${offset}`, this.downloadType);
             
             const count = await this.writeRequest(request, this.downloadType);
             // if not return the same number of rows that pagination is that the query finished
