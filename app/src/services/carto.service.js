@@ -2,7 +2,9 @@ const logger = require('logger');
 const url = require('url');
 const request = require('request');
 const requestPromise = require('request-promise');
-const simpleSqlParser = require('simple-sql-parser');
+
+const Json2sql = require('sql2json').json2sql;
+const Sql2json = require('sql2json').sql2json;
 
 class CartoService {
 
@@ -25,11 +27,12 @@ class CartoService {
 
     static async getCount(urlDataset, tableName, where) {
         logger.debug(`Obtaining count of ${urlDataset} and table ${tableName}`);
-        const astTemp = simpleSqlParser.sql2ast(`select count(*) from ${tableName}`);
+        const parsed = new Sql2json(`select count(*) from ${tableName}`).toJSON();
+        
         if (where) {
-            astTemp.WHERE = where;
+            parsed.where = where;
         }
-        const sql = simpleSqlParser.ast2sql(astTemp);
+        const sql = Json2sql.toSQL(parsed);
         const parsedUrl = url.parse(urlDataset);
         logger.debug('Doing request to ', unescape(`https://${parsedUrl.host}/api/v2/sql?q=${sql}`));
         try {
