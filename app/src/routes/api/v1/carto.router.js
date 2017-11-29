@@ -171,7 +171,7 @@ const toSQLMiddleware = async function (ctx, next) {
     if (ctx.query.sql || ctx.request.body.sql) {
         logger.debug('Checking sql correct');
         const params = Object.assign({}, ctx.query, ctx.request.body);
-        options.uri = `/convert/sql2SQL?sql=${encodeURIComponent(params.sql)}&experimental=true`;
+        options.uri = `/convert/sql2SQL?sql=${encodeURIComponent(params.sql)}&experimental=true&raster=${ctx.request.body.dataset.type === 'raster'}`;
         if (params.geostore) {
             options.uri += `&geostore=${params.geostore}`;
         }
