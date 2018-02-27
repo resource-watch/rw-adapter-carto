@@ -14,7 +14,7 @@ class QueryService {
         this.download = download;
         this.downloadType = downloadType;
         this.jsonSql = jsonSql;
-        this.pagination = 10;
+        this.pagination = 100;
         this.timeout = false;
         this.timeoutFunc = setTimeout(() => { this.timeout = true; }, 60000);
     }
