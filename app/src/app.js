@@ -28,10 +28,14 @@ app.use(async (ctx, next) => {
         try {
             error = JSON.parse(err);
         } catch (e) {
-            logger.error('Error parse');
+            logger.error(`Error parsing exception: ${err.message}`);
         }
-        ctx.status = error.status || 500;
-        logger.error(error);
+        this.status = err.status || 500;
+        if (this.status >= 500) {
+            logger.error(err);
+        } else {
+            logger.info(err);
+        }
         ctx.body = ErrorSerializer.serializeError(ctx.status, error.message);
         if (process.env.NODE_ENV === 'prod' && this.status === 500) {
             ctx.body = 'Unexpected error';
