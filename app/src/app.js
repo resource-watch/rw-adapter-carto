@@ -30,8 +30,8 @@ app.use(async (ctx, next) => {
         } catch (e) {
             logger.error(`Error parsing exception: ${err.message}`);
         }
-        this.status = err.status || 500;
-        if (this.status >= 500) {
+        ctx.status = err.status || 500;
+        if (ctx.status >= 500) {
             logger.error(err);
         } else {
             logger.info(err);
