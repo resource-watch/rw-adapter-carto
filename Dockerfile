@@ -1,5 +1,5 @@
 FROM mhart/alpine-node:7.6
-MAINTAINER raul.requero@vizzuality.com
+MAINTAINER info@vizzuality.com
 
 ENV NAME rw-adapter-carto
 ENV USER rw-adapter-carto
