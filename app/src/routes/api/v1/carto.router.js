@@ -118,6 +118,11 @@ class CartoRouter {
         ctx.body = {};
     }
 
+    static async deleteDataset(ctx) {
+        logger.info('Delete carto dataset stub');
+        ctx.body = {};
+    }
+
 }
 
 const deserializer = (obj) => (new Promise((resolve, reject) => {
@@ -228,5 +233,6 @@ router.post('/query/:dataset', deserializeDataset, toSQLMiddleware, sanitizeUrl,
 router.post('/download/:dataset', deserializeDataset, toSQLMiddleware, sanitizeUrl, CartoRouter.download);
 router.post('/fields/:dataset', deserializeDataset, sanitizeUrl, CartoRouter.fields);
 router.post('/rest-datasets/cartodb', sanitizeUrl, CartoRouter.registerDataset);
+router.delete('/rest-datasets/cartodb', CartoRouter.deleteDataset);
 
 module.exports = router;
