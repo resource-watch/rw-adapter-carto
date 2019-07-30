@@ -6,9 +6,15 @@ const should = chai.should();
 
 const requester = getTestServer();
 
-describe('E2E test', () => {
+describe('Delete Carto dataset', () => {
 
-    it('Get fields correctly', async () => {
+    before(async () => {
+        if (process.env.NODE_ENV !== 'test') {
+            throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
+        }
+    });
+
+    it('Deleting a carto dataset does nothing and returns a 200 status code', async () => {
         const response = await requester
             .delete(`/api/v1/carto/rest-datasets/cartodb`)
             .send({});

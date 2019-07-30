@@ -21,7 +21,7 @@ installed on your machine.
 ```
 git clone https://github.com/Vizzuality/gfw-geostore-api.git
 cd rw-adapter-carto
-./adapter.sh develop
+./carto.sh develop
 ```text
 
 You can now access the microservice through the CT gateway.

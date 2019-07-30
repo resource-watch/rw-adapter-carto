@@ -7,7 +7,7 @@
     "dev": "CT_URL=http://mymachine:9000 LOCAL_URL=http://mymachine:3005 NODE_PATH=app/src PORT=3005 node ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js",
     "start": "NODE_PATH=app/src node $NODE_DEBUG_OPTION app/index.js",
     "test": "NODE_PATH=app/src node $NODE_DEBUG_OPTION ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js e2eTest",
-    "test-watch": "NODE_PATH=app/src CT_URL=http://tower.test node ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js e2eTest-watch"
+    "coverage": "NODE_PATH=app/src node $NODE_DEBUG_OPTION ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js nyc"
   },
   "keywords": [],
   "author": "",
@@ -30,9 +30,11 @@
     "grunt-express-server": "^0.5.4",
     "grunt-mocha-test": "^0.13.3",
     "grunt-notify": "^0.4.5",
+    "grunt-simple-nyc": "3.0.0",
     "load-grunt-tasks": "^5.0.0",
     "mocha": "^6.2.0",
-    "nock": "^10.0.6"
+    "nock": "^10.0.6",
+    "nyc": "^14.1.1"
   },
   "dependencies": {
     "JSONStream": "^1.3.0",

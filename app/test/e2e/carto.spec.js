@@ -26,6 +26,13 @@ const fields = [{
 }];
 
 describe('E2E test', () => {
+
+    before(async () => {
+        if (process.env.NODE_ENV !== 'test') {
+            throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
+        }
+    });
+
     it('Get fields correctly', async () => {
         nock(`https://wri-01.carto.com`)
             .get(encodeURI(`/api/v2/sql?q=select * from ${dataset.data.attributes.table_name} limit 0`))
