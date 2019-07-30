@@ -26,22 +26,15 @@ const fields = [{
 }];
 
 describe('E2E test', () => {
-    before(() => {
+    it('Get fields correctly', async () => {
         nock(`https://wri-01.carto.com`)
             .get(encodeURI(`/api/v2/sql?q=select * from ${dataset.data.attributes.table_name} limit 0`))
             .reply(200, {
                 rows: [],
                 fields
             });
-        nock(`${process.env.CT_URL}`)
-            .get(encodeURI(`/convert/sql2SQL?sql=update table`))
-            .reply(400, {
-                status: 400,
-                detail: 'Malformed query'
-            });
-    });
 
-    it('Get fields correctly', async () => {
+
         const response = await requester
             .post(`/api/v1/carto/fields/${dataset.data.id}`)
             .send({
@@ -56,6 +49,9 @@ describe('E2E test', () => {
         response.body.fields.should.deep.equal(fields);
     });
 
-    after(() => {
+    afterEach(() => {
+        if (!nock.isDone()) {
+            throw new Error(`Not all nock interceptors were used: ${nock.pendingMocks()}`);
+        }
     });
 });
