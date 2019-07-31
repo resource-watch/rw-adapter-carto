@@ -148,11 +148,11 @@
       }
     },
     {
-      "path": "/v1/rest-datasets/cartodb",
+      "path": "/v1/rest-datasets/cartodb/:dataset",
       "method": "DELETE",
       "redirect": {
         "method": "DELETE",
-        "path": "/api/v1/carto/rest-datasets/cartodb"
+        "path": "/api/v1/carto/rest-datasets/cartodb/:dataset"
       }
     }
   ]
