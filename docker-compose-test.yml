@@ -8,4 +8,6 @@ services:
     environment:
       NODE_ENV: test
       CT_URL: http://mymachine:9000
+      API_VERSION: v1
+      CT_REGISTER_MODE: auto
     command: test
