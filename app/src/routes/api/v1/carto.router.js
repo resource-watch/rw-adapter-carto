@@ -233,6 +233,6 @@ router.post('/query/:dataset', deserializeDataset, toSQLMiddleware, sanitizeUrl,
 router.post('/download/:dataset', deserializeDataset, toSQLMiddleware, sanitizeUrl, CartoRouter.download);
 router.post('/fields/:dataset', deserializeDataset, sanitizeUrl, CartoRouter.fields);
 router.post('/rest-datasets/cartodb', sanitizeUrl, CartoRouter.registerDataset);
-router.delete('/rest-datasets/cartodb', CartoRouter.deleteDataset);
+router.delete('/rest-datasets/cartodb/:dataset', CartoRouter.deleteDataset);
 
 module.exports = router;
