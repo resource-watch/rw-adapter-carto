@@ -16,7 +16,7 @@ describe('Delete Carto dataset', () => {
 
     it('Deleting a carto dataset does nothing and returns a 200 status code', async () => {
         const response = await requester
-            .delete(`/api/v1/carto/rest-datasets/cartodb`)
+            .delete(`/api/v1/carto/rest-datasets/cartodb/12345`)
             .send({});
 
         response.status.should.equal(200);
