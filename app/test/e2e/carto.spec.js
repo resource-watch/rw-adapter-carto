@@ -1,6 +1,6 @@
 const nock = require('nock');
 const chai = require('chai');
-const { getTestServer } = require('./test-server');
+const { getTestServer } = require('./src/test-server');
 
 const should = chai.should();
 
@@ -28,6 +28,8 @@ const fields = [{
 describe('E2E test', () => {
 
     before(async () => {
+        nock.cleanAll();
+
         if (process.env.NODE_ENV !== 'test') {
             throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
         }
