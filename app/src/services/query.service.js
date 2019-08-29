@@ -16,7 +16,9 @@ class QueryService {
         this.jsonSql = jsonSql;
         this.pagination = 100;
         this.timeout = false;
-        this.timeoutFunc = setTimeout(() => { this.timeout = true; }, 60000);
+        this.timeoutFunc = setTimeout(() => {
+            this.timeout = true;
+        }, 60000);
     }
 
     async init() {
@@ -63,7 +65,7 @@ class QueryService {
                     this.first = false;
                 })
                 .on('end', () => resolve(count))
-                .on('error', () => reject('Error in stream'));
+                .on('error', () => reject(new Error('Error in stream')));
         });
     }
 
@@ -83,7 +85,7 @@ class QueryService {
                 this.passthrough.write(`[`);
             }
         }
-        
+
         for (let i = 0; i < pages; i++) {
             if (this.timeout) {
                 break;
@@ -95,7 +97,7 @@ class QueryService {
             }
             logger.debug('Query', `${Json2sql.toSQL(this.jsonSql)} OFFSET ${offset}`);
             const request = CartoService.executeQuery(this.dataset.connectorUrl, `${Json2sql.toSQL(this.jsonSql)} OFFSET ${offset}`, this.downloadType);
-            
+
             const count = await this.writeRequest(request, this.downloadType);
             // if not return the same number of rows that pagination is that the query finished
             if (count < this.pagination) {
@@ -113,7 +115,7 @@ class QueryService {
         };
 
         if (!this.download) {
-            
+
             if (this.downloadType === 'geojson') {
                 this.passthrough.write(`]}`);
             }

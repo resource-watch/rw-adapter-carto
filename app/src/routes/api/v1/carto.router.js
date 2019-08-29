@@ -36,7 +36,7 @@ class CartoRouter {
 
     static async query(ctx) {
         ctx.set('Content-type', 'application/json');
-        const format = ctx.query.format;
+        const { format } = ctx.query;
         const cloneUrl = CartoRouter.getCloneUrl(ctx.request.url, ctx.params.dataset);
         try {
             ctx.body = passThrough();
@@ -58,13 +58,13 @@ class CartoRouter {
             let mimetype;
             switch (format) {
 
-            case 'csv':
-                mimetype = 'text/csv';
-                break;
-            case 'json':
-            default:
-                mimetype = 'application/json';
-                break;
+                case 'csv':
+                    mimetype = 'text/csv';
+                    break;
+                case 'json':
+                default:
+                    mimetype = 'application/json';
+                    break;
 
             }
 
@@ -148,14 +148,12 @@ const sanitizeUrl = async (ctx, next) => {
     await next();
 };
 
-const deserializeDataset = async(ctx, next) => {
+const deserializeDataset = async (ctx, next) => {
     logger.debug('Body', ctx.request.body);
     if (ctx.request.body.dataset && ctx.request.body.dataset.data) {
         ctx.request.body.dataset = await deserializer(ctx.request.body.dataset);
-    } else {
-        if (ctx.request.body.dataset && ctx.request.body.dataset.table_name) {
-            ctx.request.body.dataset.tableName = ctx.request.body.dataset.table_name;
-        }
+    } else if (ctx.request.body.dataset && ctx.request.body.dataset.table_name) {
+        ctx.request.body.dataset.tableName = ctx.request.body.dataset.table_name;
     }
     await next();
 };
@@ -175,7 +173,7 @@ const toSQLMiddleware = async function (ctx, next) {
 
     if (ctx.query.sql || ctx.request.body.sql) {
         logger.debug('Checking sql correct');
-        const params = Object.assign({}, ctx.query, ctx.request.body);
+        const params = { ...ctx.query, ...ctx.request.body };
         options.uri = `/convert/sql2SQL?sql=${encodeURIComponent(params.sql)}&experimental=true&raster=${ctx.request.body.dataset.type === 'raster'}`;
         if (params.geostore) {
             options.uri += `&geostore=${params.geostore}`;
@@ -188,11 +186,11 @@ const toSQLMiddleware = async function (ctx, next) {
         }
     } else {
         logger.debug('Obtaining sql from featureService');
-        const fs = Object.assign({}, ctx.request.body);
+        const fs = { ...ctx.request.body };
         delete fs.dataset;
         const query = serializeObjToQuery(ctx.request.query);
         const body = fs;
-        const resultQuery = Object.assign({}, query);
+        const resultQuery = { ...query };
 
         if (resultQuery) {
             options.uri = `/convert/fs2SQL${resultQuery}&tableName=${ctx.request.body.dataset.tableName}`;
@@ -210,13 +208,11 @@ const toSQLMiddleware = async function (ctx, next) {
             ctx.query.sql = result.body.data.attributes.query;
             ctx.state.jsonSql = result.body.data.attributes.jsonSql;
             await next();
+        } else if (result.statusCode === 400) {
+            ctx.status = result.statusCode;
+            ctx.body = result.body;
         } else {
-            if (result.statusCode === 400) {
-                ctx.status = result.statusCode;
-                ctx.body = result.body;
-            } else {
-                ctx.throw(result.statusCode, result.body);
-            }
+            ctx.throw(result.statusCode, result.body);
         }
 
     } catch (e) {
