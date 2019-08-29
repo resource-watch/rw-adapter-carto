@@ -2,7 +2,7 @@ const DATASET = {
     data: {
         id: '00c47f6d-13e6-4a45-8690-897bdaa2c723',
         attributes: {
-            connectorUrl: 'https://wri-01.carto.com/tables/wdpa_protected_areas/table',
+            connectorUrl: 'https://test.carto.com/tables/wdpa_protected_areas/table',
             table_name: 'wdpa_protected_areas'
         }
     }

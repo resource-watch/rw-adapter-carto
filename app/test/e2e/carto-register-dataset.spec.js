@@ -2,9 +2,9 @@
 const nock = require('nock');
 const chai = require('chai');
 // eslint-disable-next-line import/no-unresolved
-const { createRequest } = require('./src/test-server');
-const { createMockRegisterDataset, createMockSQLQuery } = require('./src/mock');
-const { DATASET } = require('./src/test-constants');
+const { createRequest } = require('./utils/test-server');
+const { createMockRegisterDataset, createMockSQLQuery } = require('./utils/mock');
+const { DATASET } = require('./utils/test-constants');
 
 const should = chai.should();
 
@@ -23,7 +23,7 @@ describe('Query register dataset tests', () => {
     });
 
     it('Should register dataset', async () => {
-        createMockSQLQuery('select * from test limit 2 offset 0', 'https://wri-01.carto.com');
+        createMockSQLQuery('select * from test limit 2 offset 0', 'https://test.carto.com');
         createMockRegisterDataset(DATASET.data.id);
         const res = await registerDataset.post().send({
             connector: {

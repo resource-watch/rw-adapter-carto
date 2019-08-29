@@ -1,6 +1,6 @@
 const nock = require('nock');
 const chai = require('chai');
-const { getTestServer } = require('./src/test-server');
+const { getTestServer } = require('./utils/test-server');
 
 const should = chai.should();
 

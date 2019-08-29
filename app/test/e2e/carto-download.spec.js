@@ -2,10 +2,10 @@
 const nock = require('nock');
 const chai = require('chai');
 // eslint-disable-next-line import/no-unresolved
-const { createRequest } = require('./src/test-server');
-const { ensureCorrectError } = require('./src/utils');
-const { createMockConvertSQL, createMockSQLCount, createMockSQLQueryPOST } = require('./src/mock');
-const { DATASET, DEFAULT_RESPONSE_SQL_QUERY } = require('./src/test-constants');
+const { createRequest } = require('./utils/test-server');
+const { ensureCorrectError } = require('./utils/helpers');
+const { createMockConvertSQL, createMockSQLCount, createMockSQLQueryPOST } = require('./utils/mock');
+const { DATASET, DEFAULT_RESPONSE_SQL_QUERY } = require('./utils/test-constants');
 
 const should = chai.should();
 
