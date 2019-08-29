@@ -1,6 +1,6 @@
 const nock = require('nock');
 const chai = require('chai');
-const { getTestServer } = require('./test-server');
+const { getTestServer } = require('./utils/test-server');
 
 const should = chai.should();
 
@@ -10,7 +10,7 @@ const dataset = {
     data: {
         id: '00c47f6d-13e6-4a45-8690-897bdaa2c723',
         attributes: {
-            connectorUrl: 'https://wri-01.carto.com/tables/wdpa_protected_areas/table',
+            connectorUrl: 'https://test.carto.com/tables/wdpa_protected_areas/table',
             table_name: 'wdpa_protected_areas'
         }
     }
@@ -25,16 +25,18 @@ const fields = [{
     }
 }];
 
-describe('E2E test', () => {
+describe('GET fields', () => {
 
     before(async () => {
+        nock.cleanAll();
+
         if (process.env.NODE_ENV !== 'test') {
             throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
         }
     });
 
-    it('Get fields correctly', async () => {
-        nock(`https://wri-01.carto.com`)
+    it('Get fields correctly for a carto dataset should return the field list (happy case)', async () => {
+        nock(`https://test.carto.com`)
             .get(encodeURI(`/api/v2/sql?q=select * from ${dataset.data.attributes.table_name} limit 0`))
             .reply(200, {
                 rows: [],
