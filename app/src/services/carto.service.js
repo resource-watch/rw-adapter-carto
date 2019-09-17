@@ -28,7 +28,7 @@ class CartoService {
     static async getCount(urlDataset, tableName, where) {
         logger.debug(`Obtaining count of ${urlDataset} and table ${tableName}`);
         const parsed = new Sql2json(`select count(*) from ${tableName}`).toJSON();
-        
+
         if (where) {
             parsed.where = where;
         }

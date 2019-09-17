@@ -1,13 +1,15 @@
-prod:
-  image: vizzuality/rw-adapter-carto:1.2.0${STAGING}
-  ports:
-    - "3005"
-  env_file:
-    - prod.env
-  command: start
-  dns: ${DNS_SERVER}
-  restart: always
-  log_driver: "syslog"
-  log_opt:
-      syslog-address: ${SYSLOG_ADDRESS}
-      tag: rw-adapter-carto${STAGING}
+version: "3"
+services:
+  prod:
+    image: vizzuality/rw-adapter-carto:1.2.0${STAGING}
+    ports:
+      - "3005"
+    env_file:
+      - prod.env
+    command: start
+    dns: ${DNS_SERVER}
+    restart: always
+    log_driver: "syslog"
+    log_opt:
+        syslog-address: ${SYSLOG_ADDRESS}
+        tag: rw-adapter-carto${STAGING}

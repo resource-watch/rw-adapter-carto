@@ -12,11 +12,11 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "babel-eslint": "^10.0.2",
+    "babel-eslint": "^10.0.3",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
-    "eslint": "^5.12.1",
-    "eslint-config-airbnb": "^17.1.1",
+    "eslint": "^6.2.2",
+    "eslint-config-airbnb": "^18.0.1",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.14.3",
@@ -29,8 +29,8 @@
     "grunt-express-server": "^0.5.4",
     "grunt-mocha-test": "^0.13.3",
     "grunt-notify": "^0.4.5",
-    "grunt-simple-nyc": "3.0.0",
-    "load-grunt-tasks": "^5.0.0",
+    "grunt-simple-nyc": "^3.0.0",
+    "load-grunt-tasks": "^5.1.0",
     "mocha": "^6.2.0",
     "nock": "^10.0.6",
     "nyc": "^14.1.1"
@@ -45,17 +45,17 @@
     "config": "^1.21.0",
     "ct-register-microservice-node": "^2.1.7",
     "json2csv": "^3.7.3",
-    "jsonapi-serializer": "2.1.1",
+    "jsonapi-serializer": "^3.6.5",
     "kcors": "^2.1.1",
     "koa": "^2.0.0",
-    "koa-body": "^1.4.0",
+    "koa-body": "^4.1.1",
     "koa-convert": "^1.2.0",
     "koa-logger": "^2.0.0",
     "koa-mount": "2.0.0",
     "koa-router": "^7.0.1",
-    "request": "^2.79.0",
+    "request": "^2.88.0",
     "request-promise": "^4.1.1",
     "simple-sql-parser": "1.3.1",
-    "sql2json": "2.0.5"
+    "sql2json": "^2.0.6"
   }
 }
