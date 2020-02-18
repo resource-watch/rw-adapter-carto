@@ -2,19 +2,19 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    name: {name}
+    name: carto
     app: rw
-  name: {name}
+  name: carto
 spec:
   revisionHistoryLimit: 2
   template:
     metadata:
       labels:
-        name: {name}
+        name: carto
     spec:
       containers:
-      - name: {name}
-        image: vizzuality/{name}
+      - name: carto
+        image: vizzuality/carto
         imagePullPolicy: Always
         resources:
           requests:
@@ -31,7 +31,7 @@ spec:
           - name: NODE_PATH
             value: app/src
           - name: LOCAL_URL
-            value: http://{name}.default.svc.cluster.local:3005
+            value: http://carto.default.svc.cluster.local:3005
           - name: MONGO_URI
             valueFrom:
                 secretKeyRef:
