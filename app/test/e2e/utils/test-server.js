@@ -11,7 +11,7 @@ const createRequest = (prefix, method) => {
     const newRequest = chai.request(server).keepOpen();
     const oldHandler = newRequest[method];
 
-    newRequest[method] = url => oldHandler(prefix + (url || ''));
+    newRequest[method] = (url) => oldHandler(prefix + (url || ''));
 
     return newRequest;
 };

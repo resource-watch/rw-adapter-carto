@@ -159,7 +159,7 @@ const deserializeDataset = async (ctx, next) => {
 };
 
 
-const toSQLMiddleware = async function (ctx, next) {
+const toSQLMiddleware = async (ctx, next) => {
     const options = {
         method: 'GET',
         json: true,
