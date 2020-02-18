@@ -2,7 +2,7 @@
 
 case "$1" in
     start)
-        npm start
+        yarn start
         ;;
     develop)
         type docker-compose >/dev/null 2>&1 || { echo >&2 "docker-compose is required but it's not installed.  Aborting."; exit 1; }
