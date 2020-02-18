@@ -9,7 +9,14 @@
     "coverage": "NODE_PATH=app/src node $NODE_DEBUG_OPTION ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js nyc"
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "Vizzuality",
+    "email": "hello@vizzuality.com",
+    "url": "http://vizzuality.com/"
+  },
+  "engines": {
+    "node": "~12"
+  },
   "license": "ISC",
   "devDependencies": {
     "babel-eslint": "^10.0.3",
