@@ -6,6 +6,15 @@ metadata:
     app: rw
   name: carto
 spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: type
+                operator: In
+                values:
+                  - apps
   revisionHistoryLimit: 2
   template:
     metadata:
@@ -13,76 +22,76 @@ spec:
         name: carto
     spec:
       containers:
-      - name: carto
-        image: vizzuality/carto
-        imagePullPolicy: Always
-        resources:
-          requests:
-            cpu: "0.5"
-            memory: "256M"
-          limits:
-            cpu: "1"
-            memory: "512M"
-        args:
-          - start
-        env:
-          - name: PORT
-            value: "3005"
-          - name: NODE_ENV
-            value: prod
-          - name: NODE_PATH
-            value: app/src
-          - name: LOCAL_URL
-            value: http://carto.default.svc.cluster.local:3005
-          - name: MONGO_URI
-            valueFrom:
+        - name: carto
+          image: vizzuality/carto
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "0.5"
+              memory: "256M"
+            limits:
+              cpu: "1"
+              memory: "512M"
+          args:
+            - start
+          env:
+            - name: PORT
+              value: "3005"
+            - name: NODE_ENV
+              value: prod
+            - name: NODE_PATH
+              value: app/src
+            - name: LOCAL_URL
+              value: http://carto.default.svc.cluster.local:3005
+            - name: MONGO_URI
+              valueFrom:
                 secretKeyRef:
                   name: dbsecrets
                   key: GEOSTORE_MONGO_URI
-          - name: CT_URL
-            valueFrom:
+            - name: CT_URL
+              valueFrom:
                 secretKeyRef:
                   name: mssecrets
                   key: CT_URL
-          - name: CT_TOKEN
-            valueFrom:
+            - name: CT_TOKEN
+              valueFrom:
                 secretKeyRef:
                   name: mssecrets
                   key: CT_TOKEN
-          - name: CT_REGISTER_MODE
-            valueFrom:
+            - name: CT_REGISTER_MODE
+              valueFrom:
                 secretKeyRef:
                   name: mssecrets
                   key: CT_REGISTER_MODE
-          - name: API_VERSION
-            valueFrom:
+            - name: API_VERSION
+              valueFrom:
                 secretKeyRef:
                   name: mssecrets
                   key: API_VERSION
-          - name: CARTODB_USER
-            valueFrom:
+            - name: CARTODB_USER
+              valueFrom:
                 secretKeyRef:
                   name: mssecrets
                   key: CARTODB_USER
 
-        ports:
-          - containerPort: 3005
-        readinessProbe:
-          httpGet:
-            scheme: HTTP
-            path: /healthcheck
-            port: 3005
-          initialDelaySeconds: 30
-          timeoutSeconds: 5
-          periodSeconds: 15
-        livenessProbe:
-          httpGet:
-            scheme: HTTP
-            path: /healthcheck
-            port: 3005
-          failureThreshold: 3
-          initialDelaySeconds: 30
-          timeoutSeconds: 5
-          periodSeconds: 15
+          ports:
+            - containerPort: 3005
+          readinessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /healthcheck
+              port: 3005
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /healthcheck
+              port: 3005
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+            periodSeconds: 15
 
       restartPolicy: Always
