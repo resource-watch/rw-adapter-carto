@@ -6,21 +6,21 @@ metadata:
     app: rw
   name: carto
 spec:
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: type
-                operator: In
-                values:
-                  - apps
   revisionHistoryLimit: 2
   template:
     metadata:
       labels:
         name: carto
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: type
+                    operator: In
+                    values:
+                      - apps
       containers:
         - name: carto
           image: vizzuality/carto
