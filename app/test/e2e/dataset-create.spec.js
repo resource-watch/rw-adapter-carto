@@ -1,19 +1,17 @@
-/* eslint-disable no-unused-vars,no-undef */
 const nock = require('nock');
 const chai = require('chai');
-// eslint-disable-next-line import/no-unresolved
-const { createRequest } = require('./utils/test-server');
+const { getTestServer } = require('./utils/test-server');
 const { createMockRegisterDataset, createMockSQLQuery } = require('./utils/mock');
 const { DATASET } = require('./utils/test-constants');
 
-const should = chai.should();
+chai.should();
 
-const registerDataset = createRequest('/api/v1/carto/rest-datasets/cartodb', 'post');
+const requester = getTestServer();
 
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
 
-describe('Query register dataset tests', () => {
+describe('Create Carto dataset tests', () => {
     before(async () => {
         nock.cleanAll();
 
@@ -22,16 +20,19 @@ describe('Query register dataset tests', () => {
         }
     });
 
-    it('Should register dataset', async () => {
+    it('Should create dataset', async () => {
         createMockSQLQuery('select * from test limit 2 offset 0', 'https://test.carto.com');
         createMockRegisterDataset(DATASET.data.id);
-        const res = await registerDataset.post().send({
-            connector: {
-                connectorUrl: DATASET.data.attributes.connectorUrl,
-                tableName: DATASET.data.attributes.table_name,
-                id: DATASET.data.id,
-            }
-        });
+
+        const res = await requester
+            .post('/api/v1/carto/rest-datasets/cartodb')
+            .send({
+                connector: {
+                    connectorUrl: DATASET.data.attributes.connectorUrl,
+                    tableName: DATASET.data.attributes.table_name,
+                    id: DATASET.data.id,
+                }
+            });
 
         res.status.should.equal(200);
     });

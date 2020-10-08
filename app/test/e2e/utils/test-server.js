@@ -7,15 +7,6 @@ let requester;
 
 chai.use(chaiHttp);
 
-const createRequest = (prefix, method) => {
-    const newRequest = chai.request(server).keepOpen();
-    const oldHandler = newRequest[method];
-
-    newRequest[method] = (url) => oldHandler(prefix + (url || ''));
-
-    return newRequest;
-};
-
 const getTestServer = function getTestServer() {
     if (requester) {
         return requester;
@@ -30,4 +21,4 @@ const getTestServer = function getTestServer() {
     return requester;
 };
 
-module.exports = { createRequest, getTestServer };
+module.exports = { getTestServer };
