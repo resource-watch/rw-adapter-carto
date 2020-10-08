@@ -11,133 +11,48 @@
   ],
   "endpoints": [
     {
-      "path": "/v1/query/:dataset",
+      "path": "/v1/query/cartodb/:dataset",
       "method": "GET",
       "binary": true,
       "redirect": {
         "method": "POST",
         "path": "/api/v1/carto/query/:dataset"
-      },
-      "filters": [
-        {
-          "name": "dataset",
-          "path": "/v1/dataset/:dataset",
-          "method": "GET",
-          "params": {
-            "dataset": "dataset"
-          },
-          "compare": {
-            "data": {
-              "attributes": {
-                "provider": "cartodb"
-              }
-            }
-          }
-        }
-      ]
+      }
     },
     {
-      "path": "/v1/query/:dataset",
+      "path": "/v1/query/cartodb/:dataset",
       "method": "POST",
       "binary": true,
       "redirect": {
         "method": "POST",
         "path": "/api/v1/carto/query/:dataset"
-      },
-      "filters": [
-        {
-          "name": "dataset",
-          "path": "/v1/dataset/:dataset",
-          "method": "GET",
-          "params": {
-            "dataset": "dataset"
-          },
-          "compare": {
-            "data": {
-              "attributes": {
-                "provider": "cartodb"
-              }
-            }
-          }
-        }
-      ]
+      }
     },
     {
-      "path": "/v1/download/:dataset",
+      "path": "/v1/download/cartodb/:dataset",
       "method": "GET",
       "binary": true,
       "redirect": {
         "method": "POST",
         "path": "/api/v1/carto/download/:dataset"
-      },
-      "filters": [
-        {
-          "name": "dataset",
-          "path": "/v1/dataset/:dataset",
-          "method": "GET",
-          "params": {
-            "dataset": "dataset"
-          },
-          "compare": {
-            "data": {
-              "attributes": {
-                "provider": "cartodb"
-              }
-            }
-          }
-        }
-      ]
+      }
     },
     {
-      "path": "/v1/download/:dataset",
+      "path": "/v1/download/cartodb/:dataset",
       "method": "POST",
       "binary": true,
       "redirect": {
         "method": "POST",
         "path": "/api/v1/carto/download/:dataset"
-      },
-      "filters": [
-        {
-          "name": "dataset",
-          "path": "/v1/dataset/:dataset",
-          "method": "GET",
-          "params": {
-            "dataset": "dataset"
-          },
-          "compare": {
-            "data": {
-              "attributes": {
-                "provider": "cartodb"
-              }
-            }
-          }
-        }
-      ]
+      }
     },
     {
-      "path": "/v1/fields/:dataset",
+      "path": "/v1/fields/cartodb/:dataset",
       "method": "GET",
       "redirect": {
         "method": "POST",
         "path": "/api/v1/carto/fields/:dataset"
-      },
-      "filters": [
-        {
-          "name": "dataset",
-          "path": "/v1/dataset/:dataset",
-          "method": "GET",
-          "params": {
-            "dataset": "dataset"
-          },
-          "compare": {
-            "data": {
-              "attributes": {
-                "provider": "cartodb"
-              }
-            }
-          }
-        }
-      ]
+      }
     },
     {
       "path": "/v1/rest-datasets/cartodb",

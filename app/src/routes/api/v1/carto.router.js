@@ -1,13 +1,12 @@
 const Router = require('koa-router');
 const logger = require('logger');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
-const JSONAPIDeserializer = require('jsonapi-serializer').Deserializer;
-const Promise = require('bluebird');
 const CartoService = require('services/carto.service');
 const QueryService = require('services/query.service');
 const FieldSerializer = require('serializers/field.serializer');
 const passThrough = require('stream').PassThrough;
 const ErrorSerializer = require('serializers/error.serializer');
+const DatasetMiddleware = require('middleware/dataset.middleware');
 
 const router = new Router({
     prefix: '/carto',
@@ -125,18 +124,6 @@ class CartoRouter {
 
 }
 
-const deserializer = (obj) => (new Promise((resolve, reject) => {
-    new JSONAPIDeserializer({
-        keyForAttribute: 'camelCase'
-    }).deserialize(obj, (err, data) => {
-        if (err) {
-            reject(err);
-            return;
-        }
-        resolve(data);
-    });
-}));
-
 const sanitizeUrl = async (ctx, next) => {
     if (ctx.request.body.dataset && ctx.request.body.dataset.connectorUrl && /\/u\//.test(ctx.request.body.dataset.connectorUrl)) {
         const user = ctx.request.body.dataset.connectorUrl.split(/\/u|\/table/)[1].replace('/', '');
@@ -144,16 +131,6 @@ const sanitizeUrl = async (ctx, next) => {
     } else if (ctx.request.body.connector && ctx.request.body.connector.connector_url && /\/u\//.test(ctx.request.body.connector.connector_url)) {
         const user = ctx.request.body.connector.connector_url.split(/\/u|\/table/)[1].replace('/', '');
         ctx.request.body.connector.connector_url = `https://${user}.carto.com/api/v2/sql`;
-    }
-    await next();
-};
-
-const deserializeDataset = async (ctx, next) => {
-    logger.debug('Body', ctx.request.body);
-    if (ctx.request.body.dataset && ctx.request.body.dataset.data) {
-        ctx.request.body.dataset = await deserializer(ctx.request.body.dataset);
-    } else if (ctx.request.body.dataset && ctx.request.body.dataset.table_name) {
-        ctx.request.body.dataset.tableName = ctx.request.body.dataset.table_name;
     }
     await next();
 };
@@ -225,9 +202,9 @@ const toSQLMiddleware = async (ctx, next) => {
     }
 };
 
-router.post('/query/:dataset', deserializeDataset, toSQLMiddleware, sanitizeUrl, CartoRouter.query);
-router.post('/download/:dataset', deserializeDataset, toSQLMiddleware, sanitizeUrl, CartoRouter.download);
-router.post('/fields/:dataset', deserializeDataset, sanitizeUrl, CartoRouter.fields);
+router.post('/query/:dataset', DatasetMiddleware.getDatasetById, toSQLMiddleware, sanitizeUrl, CartoRouter.query);
+router.post('/download/:dataset', DatasetMiddleware.getDatasetById, toSQLMiddleware, sanitizeUrl, CartoRouter.download);
+router.post('/fields/:dataset', DatasetMiddleware.getDatasetById, sanitizeUrl, CartoRouter.fields);
 router.post('/rest-datasets/cartodb', sanitizeUrl, CartoRouter.registerDataset);
 router.delete('/rest-datasets/cartodb/:dataset', CartoRouter.deleteDataset);
 
