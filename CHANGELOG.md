@@ -1,6 +1,10 @@
-# 08/10/2020
+# 1.1.0
+
+## 17/11/2020
 
 - Remove dependency on Control Tower's filter functionality.
+- Security update of NPM package `dot-prop` from 4.2.0 to 4.2.1.
+- Security update of NPM package `lodash` from 4.17.15 to 4.17.20.
 
 # 1.0.0
 
