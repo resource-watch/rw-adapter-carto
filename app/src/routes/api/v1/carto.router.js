@@ -1,6 +1,6 @@
 const Router = require('koa-router');
 const logger = require('logger');
-const ctRegisterMicroservice = require('ct-register-microservice-node');
+const { RWAPIMicroservice } = require('rw-api-microservice-node');
 const CartoService = require('services/carto.service');
 const QueryService = require('services/query.service');
 const FieldSerializer = require('serializers/field.serializer');
@@ -91,7 +91,7 @@ class CartoRouter {
         logger.info('Registering dataset with data', ctx.request.body);
         try {
             await CartoService.getFields(ctx.request.body.connector.connectorUrl, ctx.request.body.connector.tableName);
-            await ctRegisterMicroservice.requestToMicroservice({
+            await RWAPIMicroservice.requestToMicroservice({
                 method: 'PATCH',
                 uri: `/dataset/${ctx.request.body.connector.id}`,
                 body: {
@@ -102,7 +102,7 @@ class CartoRouter {
                 json: true
             });
         } catch (e) {
-            await ctRegisterMicroservice.requestToMicroservice({
+            await RWAPIMicroservice.requestToMicroservice({
                 method: 'PATCH',
                 uri: `/dataset/${ctx.request.body.connector.id}`,
                 body: {
@@ -179,7 +179,7 @@ const toSQLMiddleware = async (ctx, next) => {
     }
 
     try {
-        const result = await ctRegisterMicroservice.requestToMicroservice(options);
+        const result = await RWAPIMicroservice.requestToMicroservice(options);
         logger.debug('result', result.statusCode);
         if (result.statusCode === 204 || result.statusCode === 200) {
             ctx.query.sql = result.body.data.attributes.query;
