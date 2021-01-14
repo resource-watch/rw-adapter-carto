@@ -32,7 +32,6 @@ describe('GET fields', () => {
         createMockGetDataset(timestamp, { connectorType: 'foo' });
 
         const requestBody = {
-            loggedUser: null
         };
 
         const response = await requester
@@ -50,7 +49,6 @@ describe('GET fields', () => {
         createMockGetDataset(timestamp, { provider: 'foo' });
 
         const requestBody = {
-            loggedUser: null
         };
 
         const response = await requester
@@ -78,7 +76,6 @@ describe('GET fields', () => {
         const response = await requester
             .post(`/api/v1/carto/fields/${dataset.id}`)
             .send({
-                loggedUser: null
             });
 
         response.status.should.equal(200);
