@@ -1,6 +1,6 @@
 # Resource Watch Carto Adapter
 
-[![Build Status](https://travis-ci.org/resource-watch/rw-adapter-carto.svg?branch=dev)](https://travis-ci.org/resource-watch/rw-adapter-carto)
+[![Build Status](https://travis-ci.com/resource-watch/rw-adapter-carto.svg?branch=dev)](https://travis-ci.com/resource-watch/rw-adapter-carto)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/0afec809bb5b7e1d37e7/test_coverage)](https://codeclimate.com/github/resource-watch/rw-adapter-carto/test_coverage)
 
 This repository is the microservice that implements the carto adapter
