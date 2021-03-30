@@ -9,10 +9,11 @@ chai.should();
 
 const requester = getTestServer();
 
+
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
 
-describe('Query tests', () => {
+describe('Query download tests - POST HTTP verb', () => {
     before(async () => {
         nock.cleanAll();
 
@@ -21,17 +22,18 @@ describe('Query tests', () => {
         }
     });
 
-    it('Query to dataset without connectorType cartodb should fail', async () => {
+    it('Download from a dataset without connectorType document should fail', async () => {
         const timestamp = new Date().getTime();
 
         createMockGetDataset(timestamp, { connectorType: 'foo' });
 
-        const requestBody = {};
+        const requestBody = {
+        };
 
         const query = `select * from ${timestamp}`;
 
         const response = await requester
-            .get(`/api/v1/carto/query/${timestamp}?sql=${encodeURI(query)}`)
+            .post(`/api/v1/carto/download/${timestamp}?sql=${encodeURI(query)}`)
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -39,17 +41,18 @@ describe('Query tests', () => {
         response.body.errors[0].detail.should.include('This operation is only supported for datasets with connectorType \'rest\'');
     });
 
-    it('Query to dataset without a supported provider should fail', async () => {
+    it('Download from a without a supported provider should fail', async () => {
         const timestamp = new Date().getTime();
 
         createMockGetDataset(timestamp, { provider: 'foo' });
 
-        const requestBody = {};
+        const requestBody = {
+        };
 
         const query = `select * from ${timestamp}`;
 
         const response = await requester
-            .get(`/api/v1/carto/query/${timestamp}?sql=${encodeURI(query)}`)
+            .post(`/api/v1/carto/download/${timestamp}?sql=${encodeURI(query)}`)
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -63,13 +66,13 @@ describe('Query tests', () => {
         createMockGetDataset(timestamp);
 
         const response = await requester
-            .get(`/api/v1/carto/query/${timestamp}`)
+            .post(`/api/v1/carto/download/${timestamp}`)
             .send();
 
         ensureCorrectError(response, 'sql or fs required', 400);
     });
 
-    it('Send query should return result(happy case)', async () => {
+    it('Send query should return result with format json (happy case)', async () => {
         const timestamp = new Date().getTime();
         const sql = 'SELECT * FROM test LIMIT 2 OFFSET 0';
 
@@ -80,28 +83,35 @@ describe('Query tests', () => {
         createMockConvertSQL(sql);
 
         const response = await requester
-            .get(`/api/v1/carto/query/${timestamp}`)
-            .query({ sql })
+            .post(`/api/v1/carto/download/${timestamp}`)
+            .query({ sql, format: 'json' })
             .send();
 
+        response.status.should.equal(200);
+        response.headers['content-type'].should.equal('application/json');
+        response.headers['content-disposition'].should.equal(`attachment; filename=${timestamp}.json`);
+        response.body.should.deep.equal(DEFAULT_RESPONSE_SQL_QUERY.rows);
+    });
+
+    it('Send query should return result with format csv (happy case)', async () => {
+        const timestamp = new Date().getTime();
+        const sql = 'SELECT * FROM test LIMIT 2 OFFSET 0';
+
+        createMockGetDataset(timestamp);
+
+        createMockSQLCount();
+        createMockSQLQueryPOST(sql);
+        createMockConvertSQL(sql);
+
+        const response = await requester
+            .post(`/api/v1/carto/download/${timestamp}`)
+            .query({ sql, format: 'csv' })
+            .send();
 
         response.status.should.equal(200);
-        response.body.should.have.property('data').and.instanceOf(Array);
-        response.body.should.have.property('meta').and.instanceOf(Object);
-
-        const { meta, data } = response.body;
-        data.should.deep.equal(DEFAULT_RESPONSE_SQL_QUERY.rows);
-
-        meta.should.have.property('cloneUrl').and.instanceOf(Object);
-        // eslint-disable-next-line camelcase
-        const { cloneUrl: { http_method, url, body } } = meta;
-        http_method.should.equal('POST');
-        url.should.equal(`/dataset/${timestamp}/clone`);
-        body.should.have.property('dataset').and.instanceOf(Object);
-
-        const { datasetUrl, application } = body.dataset;
-        application.should.deep.equal(['your', 'apps']);
-        datasetUrl.should.equal(`/query/${timestamp}?sql=${encodeURI(sql).replace('*', '%2A')}`);
+        response.headers['content-type'].should.equal('text/csv');
+        response.headers['content-disposition'].should.equal(`attachment; filename=${timestamp}.csv`);
+        response.text.should.equal('"field1"\n123\n231\n');
     });
 
     afterEach(() => {
