@@ -202,9 +202,11 @@ const toSQLMiddleware = async (ctx, next) => {
     }
 };
 
+router.get('/query/:dataset', DatasetMiddleware.getDatasetById, toSQLMiddleware, sanitizeUrl, CartoRouter.query);
 router.post('/query/:dataset', DatasetMiddleware.getDatasetById, toSQLMiddleware, sanitizeUrl, CartoRouter.query);
+router.get('/download/:dataset', DatasetMiddleware.getDatasetById, toSQLMiddleware, sanitizeUrl, CartoRouter.download);
 router.post('/download/:dataset', DatasetMiddleware.getDatasetById, toSQLMiddleware, sanitizeUrl, CartoRouter.download);
-router.post('/fields/:dataset', DatasetMiddleware.getDatasetById, sanitizeUrl, CartoRouter.fields);
+router.get('/fields/:dataset', DatasetMiddleware.getDatasetById, sanitizeUrl, CartoRouter.fields);
 router.post('/rest-datasets/cartodb', sanitizeUrl, CartoRouter.registerDataset);
 router.delete('/rest-datasets/cartodb/:dataset', CartoRouter.deleteDataset);
 

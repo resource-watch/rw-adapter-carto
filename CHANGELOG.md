@@ -1,3 +1,7 @@
+## 30/03/2021
+
+- Modify API HTTP verbs to match public API method signature.
+
 ## 10/12/2020
 
 - Replace CT integration library

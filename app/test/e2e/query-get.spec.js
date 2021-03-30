@@ -12,7 +12,7 @@ const requester = getTestServer();
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
 
-describe('Query tests', () => {
+describe('Query tests - GET HTTP verb', () => {
     before(async () => {
         nock.cleanAll();
 
@@ -31,7 +31,7 @@ describe('Query tests', () => {
         const query = `select * from ${timestamp}`;
 
         const response = await requester
-            .post(`/api/v1/carto/query/${timestamp}?sql=${encodeURI(query)}`)
+            .get(`/api/v1/carto/query/${timestamp}?sql=${encodeURI(query)}`)
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -49,7 +49,7 @@ describe('Query tests', () => {
         const query = `select * from ${timestamp}`;
 
         const response = await requester
-            .post(`/api/v1/carto/query/${timestamp}?sql=${encodeURI(query)}`)
+            .get(`/api/v1/carto/query/${timestamp}?sql=${encodeURI(query)}`)
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -63,7 +63,7 @@ describe('Query tests', () => {
         createMockGetDataset(timestamp);
 
         const response = await requester
-            .post(`/api/v1/carto/query/${timestamp}`)
+            .get(`/api/v1/carto/query/${timestamp}`)
             .send();
 
         ensureCorrectError(response, 'sql or fs required', 400);
@@ -80,7 +80,7 @@ describe('Query tests', () => {
         createMockConvertSQL(sql);
 
         const response = await requester
-            .post(`/api/v1/carto/query/${timestamp}`)
+            .get(`/api/v1/carto/query/${timestamp}`)
             .query({ sql })
             .send();
 

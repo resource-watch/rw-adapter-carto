@@ -13,7 +13,7 @@ const requester = getTestServer();
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
 
-describe('Query download tests', () => {
+describe('Query download tests - GET HTTP verb', () => {
     before(async () => {
         nock.cleanAll();
 
@@ -33,7 +33,7 @@ describe('Query download tests', () => {
         const query = `select * from ${timestamp}`;
 
         const response = await requester
-            .post(`/api/v1/carto/download/${timestamp}?sql=${encodeURI(query)}`)
+            .get(`/api/v1/carto/download/${timestamp}?sql=${encodeURI(query)}`)
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -52,7 +52,7 @@ describe('Query download tests', () => {
         const query = `select * from ${timestamp}`;
 
         const response = await requester
-            .post(`/api/v1/carto/download/${timestamp}?sql=${encodeURI(query)}`)
+            .get(`/api/v1/carto/download/${timestamp}?sql=${encodeURI(query)}`)
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -66,7 +66,7 @@ describe('Query download tests', () => {
         createMockGetDataset(timestamp);
 
         const response = await requester
-            .post(`/api/v1/carto/download/${timestamp}`)
+            .get(`/api/v1/carto/download/${timestamp}`)
             .send();
 
         ensureCorrectError(response, 'sql or fs required', 400);
@@ -83,7 +83,7 @@ describe('Query download tests', () => {
         createMockConvertSQL(sql);
 
         const response = await requester
-            .post(`/api/v1/carto/download/${timestamp}`)
+            .get(`/api/v1/carto/download/${timestamp}`)
             .query({ sql, format: 'json' })
             .send();
 
@@ -104,7 +104,7 @@ describe('Query download tests', () => {
         createMockConvertSQL(sql);
 
         const response = await requester
-            .post(`/api/v1/carto/download/${timestamp}`)
+            .get(`/api/v1/carto/download/${timestamp}`)
             .query({ sql, format: 'csv' })
             .send();
 
