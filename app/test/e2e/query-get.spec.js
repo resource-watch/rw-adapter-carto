@@ -12,7 +12,7 @@ const requester = getTestServer();
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
 
-describe('Query tests', () => {
+describe('Query tests - GET HTTP verb', () => {
     before(async () => {
         nock.cleanAll();
 
