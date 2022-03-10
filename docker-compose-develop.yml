@@ -5,16 +5,17 @@ services:
     ports:
       - "3005:3005"
     container_name: carto
-    env_file:
-      - dev.env
+    # env_file:
+      # - dev.env
     environment:
       PORT: 3005
       NODE_PATH: app/src
-      CT_REGISTER_MODE: auto
+      CT_REGISTER_MODE: manual
       CT_URL: http://mymachine:9000
       LOCAL_URL: http://mymachine:3005
       CT_TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im1pY3Jvc2VydmljZSIsImNyZWF0ZWRBdCI6IjIwMTYtMDktMTQifQ.IRCIRm1nfIQTfda_Wb6Pg-341zhV8soAgzw7dd5HxxQ
       API_VERSION: v1
+      FASTLY_ENABLED: "false"
     command: develop
     volumes:
       - ./app:/opt/rw-adapter-carto/app

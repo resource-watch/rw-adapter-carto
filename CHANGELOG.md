@@ -1,3 +1,7 @@
+
+## 10/03/2022
+
+- Upgrade node 12 -> 16.
 ## 28/05/2021
 
 - Update `rw-api-microservice-node` to add CORS support.
