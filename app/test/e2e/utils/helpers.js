@@ -47,7 +47,11 @@ const createMockGetDataset = (id, anotherData = {}) => {
         }
     };
 
-    nock(process.env.CT_URL)
+    nock(process.env.GATEWAY_URL, {
+        reqheaders: {
+            'x-api-key': 'api-key-test',
+        }
+    })
         .get(`/v1/dataset/${id}`)
         .reply(200, {
             data: dataset

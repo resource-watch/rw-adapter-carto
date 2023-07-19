@@ -2,26 +2,29 @@ const nock = require('nock');
 const chai = require('chai');
 const { getTestServer } = require('./utils/test-server');
 const { ensureCorrectError, createMockGetDataset } = require('./utils/helpers');
-const { createMockConvertSQL, createMockSQLCount, createMockSQLQueryPOST } = require('./utils/mock');
+const {
+    createMockConvertSQL, createMockSQLCount, createMockSQLQueryPOST, mockValidateRequestWithApiKey
+} = require('./utils/mock');
 const { DEFAULT_RESPONSE_SQL_QUERY } = require('./utils/test-constants');
 
 chai.should();
 
-const requester = getTestServer();
+let requester;
 
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
 
 describe('Query tests - POST HTTP verb', () => {
     before(async () => {
-        nock.cleanAll();
-
         if (process.env.NODE_ENV !== 'test') {
             throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
         }
+
+        requester = await getTestServer();
     });
 
     it('Query to dataset without connectorType cartodb should fail', async () => {
+        mockValidateRequestWithApiKey({});
         const timestamp = new Date().getTime();
 
         createMockGetDataset(timestamp, { connectorType: 'foo' });
@@ -32,6 +35,7 @@ describe('Query tests - POST HTTP verb', () => {
 
         const response = await requester
             .post(`/api/v1/carto/query/${timestamp}?sql=${encodeURI(query)}`)
+            .set('x-api-key', 'api-key-test')
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -40,6 +44,7 @@ describe('Query tests - POST HTTP verb', () => {
     });
 
     it('Query to dataset without a supported provider should fail', async () => {
+        mockValidateRequestWithApiKey({});
         const timestamp = new Date().getTime();
 
         createMockGetDataset(timestamp, { provider: 'foo' });
@@ -50,6 +55,7 @@ describe('Query tests - POST HTTP verb', () => {
 
         const response = await requester
             .post(`/api/v1/carto/query/${timestamp}?sql=${encodeURI(query)}`)
+            .set('x-api-key', 'api-key-test')
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -58,18 +64,21 @@ describe('Query tests - POST HTTP verb', () => {
     });
 
     it('Query without sql or fs parameter should return bad request', async () => {
+        mockValidateRequestWithApiKey({});
         const timestamp = new Date().getTime();
 
         createMockGetDataset(timestamp);
 
         const response = await requester
             .post(`/api/v1/carto/query/${timestamp}`)
+            .set('x-api-key', 'api-key-test')
             .send();
 
         ensureCorrectError(response, 'sql or fs required', 400);
     });
 
     it('Send query should return result(happy case)', async () => {
+        mockValidateRequestWithApiKey({});
         const timestamp = new Date().getTime();
         const sql = 'SELECT * FROM test LIMIT 2 OFFSET 0';
 
@@ -81,9 +90,9 @@ describe('Query tests - POST HTTP verb', () => {
 
         const response = await requester
             .post(`/api/v1/carto/query/${timestamp}`)
+            .set('x-api-key', 'api-key-test')
             .query({ sql })
             .send();
-
 
         response.status.should.equal(200);
         response.body.should.have.property('data').and.instanceOf(Array);
@@ -95,6 +104,7 @@ describe('Query tests - POST HTTP verb', () => {
         meta.should.have.property('cloneUrl').and.instanceOf(Object);
         // eslint-disable-next-line camelcase
         const { cloneUrl: { http_method, url, body } } = meta;
+        // eslint-disable-next-line camelcase
         http_method.should.equal('POST');
         url.should.equal(`/dataset/${timestamp}/clone`);
         body.should.have.property('dataset').and.instanceOf(Object);

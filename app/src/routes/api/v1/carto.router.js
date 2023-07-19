@@ -17,7 +17,6 @@ const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
     return a;
 }, []).join('&');
 
-
 class CartoRouter {
 
     static getCloneUrl(url, idDataset) {
@@ -93,25 +92,31 @@ class CartoRouter {
             await CartoService.getFields(ctx.request.body.connector.connectorUrl, ctx.request.body.connector.tableName);
             await RWAPIMicroservice.requestToMicroservice({
                 method: 'PATCH',
-                uri: `/dataset/${ctx.request.body.connector.id}`,
+                uri: `/v1/dataset/${ctx.request.body.connector.id}`,
                 body: {
                     dataset: {
                         status: 1
                     }
                 },
-                json: true
+                json: true,
+                headers: {
+                    'x-api-key': ctx.request.headers['x-api-key'],
+                }
             });
         } catch (e) {
             await RWAPIMicroservice.requestToMicroservice({
                 method: 'PATCH',
-                uri: `/dataset/${ctx.request.body.connector.id}`,
+                uri: `/v1/dataset/${ctx.request.body.connector.id}`,
                 body: {
                     dataset: {
                         status: 2,
                         errorMessage: `${e.name} - ${e.message}`
                     }
                 },
-                json: true
+                json: true,
+                headers: {
+                    'x-api-key': ctx.request.headers['x-api-key'],
+                }
             });
         }
         ctx.body = {};
@@ -135,13 +140,15 @@ const sanitizeUrl = async (ctx, next) => {
     await next();
 };
 
-
 const toSQLMiddleware = async (ctx, next) => {
     const options = {
         method: 'GET',
         json: true,
         resolveWithFullResponse: true,
-        simple: false
+        simple: false,
+        headers: {
+            'x-api-key': ctx.request.headers['x-api-key'],
+        }
     };
     if (!ctx.query.sql && !ctx.request.body.sql && !ctx.query.outFields && !ctx.query.outStatistics) {
         ctx.throw(400, 'sql or fs required');
@@ -151,7 +158,7 @@ const toSQLMiddleware = async (ctx, next) => {
     if (ctx.query.sql || ctx.request.body.sql) {
         logger.debug('Checking sql correct');
         const params = { ...ctx.query, ...ctx.request.body };
-        options.uri = `/convert/sql2SQL?sql=${encodeURIComponent(params.sql)}&experimental=true&raster=${ctx.request.body.dataset.type === 'raster'}`;
+        options.uri = `/v1/convert/sql2SQL?sql=${encodeURIComponent(params.sql)}&experimental=true&raster=${ctx.request.body.dataset.type === 'raster'}`;
         if (params.geostore) {
             options.uri += `&geostore=${params.geostore}`;
         }
@@ -170,9 +177,9 @@ const toSQLMiddleware = async (ctx, next) => {
         const resultQuery = { ...query };
 
         if (resultQuery) {
-            options.uri = `/convert/fs2SQL${resultQuery}&tableName=${ctx.request.body.dataset.tableName}`;
+            options.uri = `/v1/convert/fs2SQL${resultQuery}&tableName=${ctx.request.body.dataset.tableName}`;
         } else {
-            options.uri = `/convert/fs2SQL?tableName=${ctx.request.body.dataset.tableName}`;
+            options.uri = `/v1/convert/fs2SQL?tableName=${ctx.request.body.dataset.tableName}`;
         }
         options.body = body;
         options.method = 'POST';
