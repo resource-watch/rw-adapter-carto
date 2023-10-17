@@ -2,38 +2,43 @@ const nock = require('nock');
 const chai = require('chai');
 const { getTestServer } = require('./utils/test-server');
 const { ensureCorrectError, createMockGetDataset } = require('./utils/helpers');
-const { createMockConvertSQL, createMockSQLCount, createMockSQLQueryPOST } = require('./utils/mock');
+const {
+    createMockConvertSQL,
+    createMockSQLCount,
+    createMockSQLQueryPOST,
+    mockValidateRequestWithApiKey
+} = require('./utils/mock');
 const { DEFAULT_RESPONSE_SQL_QUERY } = require('./utils/test-constants');
 
 chai.should();
 
-const requester = getTestServer();
-
+let requester;
 
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
 
 describe('Query download tests - GET HTTP verb', () => {
     before(async () => {
-        nock.cleanAll();
-
         if (process.env.NODE_ENV !== 'test') {
             throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
         }
+
+        requester = await getTestServer();
     });
 
     it('Download from a dataset without connectorType document should fail', async () => {
+        mockValidateRequestWithApiKey({});
         const timestamp = new Date().getTime();
 
         createMockGetDataset(timestamp, { connectorType: 'foo' });
 
-        const requestBody = {
-        };
+        const requestBody = {};
 
         const query = `select * from ${timestamp}`;
 
         const response = await requester
             .get(`/api/v1/carto/download/${timestamp}?sql=${encodeURI(query)}`)
+            .set('x-api-key', 'api-key-test')
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -42,17 +47,18 @@ describe('Query download tests - GET HTTP verb', () => {
     });
 
     it('Download from a without a supported provider should fail', async () => {
+        mockValidateRequestWithApiKey({});
         const timestamp = new Date().getTime();
 
         createMockGetDataset(timestamp, { provider: 'foo' });
 
-        const requestBody = {
-        };
+        const requestBody = {};
 
         const query = `select * from ${timestamp}`;
 
         const response = await requester
             .get(`/api/v1/carto/download/${timestamp}?sql=${encodeURI(query)}`)
+            .set('x-api-key', 'api-key-test')
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -61,18 +67,21 @@ describe('Query download tests - GET HTTP verb', () => {
     });
 
     it('Query without sql or fs parameter should return bad request', async () => {
+        mockValidateRequestWithApiKey({});
         const timestamp = new Date().getTime();
 
         createMockGetDataset(timestamp);
 
         const response = await requester
             .get(`/api/v1/carto/download/${timestamp}`)
+            .set('x-api-key', 'api-key-test')
             .send();
 
         ensureCorrectError(response, 'sql or fs required', 400);
     });
 
     it('Send query should return result with format json (happy case)', async () => {
+        mockValidateRequestWithApiKey({});
         const timestamp = new Date().getTime();
         const sql = 'SELECT * FROM test LIMIT 2 OFFSET 0';
 
@@ -84,6 +93,7 @@ describe('Query download tests - GET HTTP verb', () => {
 
         const response = await requester
             .get(`/api/v1/carto/download/${timestamp}`)
+            .set('x-api-key', 'api-key-test')
             .query({ sql, format: 'json' })
             .send();
 
@@ -94,6 +104,7 @@ describe('Query download tests - GET HTTP verb', () => {
     });
 
     it('Send query should return result with format csv (happy case)', async () => {
+        mockValidateRequestWithApiKey({});
         const timestamp = new Date().getTime();
         const sql = 'SELECT * FROM test LIMIT 2 OFFSET 0';
 
@@ -105,6 +116,7 @@ describe('Query download tests - GET HTTP verb', () => {
 
         const response = await requester
             .get(`/api/v1/carto/download/${timestamp}`)
+            .set('x-api-key', 'api-key-test')
             .query({ sql, format: 'csv' })
             .send();
 
