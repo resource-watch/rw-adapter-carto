@@ -1,31 +1,33 @@
 const nock = require('nock');
 const chai = require('chai');
 const { getTestServer } = require('./utils/test-server');
-const { createMockRegisterDataset, createMockSQLQuery } = require('./utils/mock');
+const { createMockRegisterDataset, createMockSQLQuery, mockValidateRequestWithApiKey } = require('./utils/mock');
 const { DATASET } = require('./utils/test-constants');
 
 chai.should();
 
-const requester = getTestServer();
+let requester;
 
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
 
 describe('Create Carto dataset tests', () => {
     before(async () => {
-        nock.cleanAll();
-
         if (process.env.NODE_ENV !== 'test') {
             throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
         }
+
+        requester = await getTestServer();
     });
 
     it('Should create dataset', async () => {
+        mockValidateRequestWithApiKey({});
         createMockSQLQuery('select * from test limit 2 offset 0', 'https://test.carto.com');
         createMockRegisterDataset(DATASET.data.id);
 
         const res = await requester
             .post('/api/v1/carto/rest-datasets/cartodb')
+            .set('x-api-key', 'api-key-test')
             .send({
                 connector: {
                     connectorUrl: DATASET.data.attributes.connectorUrl,

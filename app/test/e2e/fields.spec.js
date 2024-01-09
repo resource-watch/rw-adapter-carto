@@ -2,10 +2,11 @@ const nock = require('nock');
 const chai = require('chai');
 const { getTestServer } = require('./utils/test-server');
 const { createMockGetDataset } = require('./utils/helpers');
+const { mockValidateRequestWithApiKey } = require('./utils/mock');
 
 chai.should();
 
-const requester = getTestServer();
+let requester;
 
 const fields = [{
     field1: {
@@ -19,23 +20,24 @@ const fields = [{
 describe('GET fields', () => {
 
     before(async () => {
-        nock.cleanAll();
-
         if (process.env.NODE_ENV !== 'test') {
             throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
         }
+
+        requester = await getTestServer();
     });
 
     it('Getting the fields for a dataset without connectorType document should fail', async () => {
+        mockValidateRequestWithApiKey({});
         const timestamp = new Date().getTime();
 
         createMockGetDataset(timestamp, { connectorType: 'foo' });
 
-        const requestBody = {
-        };
+        const requestBody = {};
 
         const response = await requester
             .get(`/api/v1/carto/fields/${timestamp}`)
+            .set('x-api-key', 'api-key-test')
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -44,15 +46,16 @@ describe('GET fields', () => {
     });
 
     it('Getting the fields for a dataset without a supported provider should fail', async () => {
+        mockValidateRequestWithApiKey({});
         const timestamp = new Date().getTime();
 
         createMockGetDataset(timestamp, { provider: 'foo' });
 
-        const requestBody = {
-        };
+        const requestBody = {};
 
         const response = await requester
             .get(`/api/v1/carto/fields/${timestamp}`)
+            .set('x-api-key', 'api-key-test')
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -61,6 +64,7 @@ describe('GET fields', () => {
     });
 
     it('Get fields correctly for a carto dataset should return the field list (happy case)', async () => {
+        mockValidateRequestWithApiKey({});
         const timestamp = new Date().getTime();
 
         const dataset = createMockGetDataset(timestamp);
@@ -72,11 +76,10 @@ describe('GET fields', () => {
                 fields
             });
 
-
         const response = await requester
             .get(`/api/v1/carto/fields/${dataset.id}`)
-            .send({
-            });
+            .set('x-api-key', 'api-key-test')
+            .send({});
 
         response.status.should.equal(200);
         response.body.should.have.property('tableName');
